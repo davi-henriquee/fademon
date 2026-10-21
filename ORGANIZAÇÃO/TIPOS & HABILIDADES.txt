@@ -1,0 +1,89 @@
+--- ESTILOS ---
+Elétrico (dano dobrado em) Água (dano dobrado em) Fogo (dano dobrado em) Planta (dano dobrado em) Elétrico (dano dobrado em) Água.
+
+--- ESTILOS LENDÁRIOS ---
+Psíquico (dano dobrado em) Angelical (dano dobrado em) Escuridão (dano dobrado em) Psíquico
+Dragão (sem fraqueza)
+
+--- HABILIDADES ---
+
+OBS: Crítico dobra o dano.
+OBS2: ATAQUE é o valor de ATAQUE do Pokémon que usou esta habilidade, não do adversário.
+OBS3: Depois de sair de uma paralisia, o mon ganha imunidade de 3 rodadas.
+OBS4: Todo ataque tem 20 usos e habilidades tem 8 usos por partida que precisa ser indicado visualmente. Exceto aqueles que explicitamente só podem ser usados X vezes.
+OBS5: Um Mon com efetividade elementar causa 2x de dano de ataques normais em outro que recebe essa efetividade, e se o ataque for do elemento que o adversário tiver fraqueza, se torna 3x de dano.
+OBS6: Proteções não são cumuilativas.
+OBS7: Confusão, sono e paralisia não podem coexistir, um Mone só pode receber 1x por vez.
+OBS8: Todo efeito de sono dura no máximo duas rodadas, com uma moeda antes de cada ação para tentar acordar.
+
+- Normais
+	- Aceleração (habilidade): Aumenta a velocidade em 50%, Acumulativo.
+	- Intimidação (habilidade): Reduz a velocidade do adversário em 50%, Acumulativo.
+	- Proteção (habilidade): Reduz 25% dos próximos 2 ATAQUEs.
+	- Cabeçada (ATAQUE): Causa 1.3x de ATAQUE.
+	- Investida (ATAQUE): Causa 1.0x de ATAQUE e 40% de crítico.
+	- Avanço (ATAQUE): Jogue uma moeda, se cair coroa, causa 0.6x de ATAQUE e se cair cara, 2.0x de ATAQUE.
+	
+- Elétrico
+	- Onda de choque (habilidade): Joga uma moeda, se cair cara, paralisa o alvo, adversário terá que jogar uma moeda cada rodada e só desparalisa quando cair cara.
+	- Carregar(habilidade): Dobra o dano do próximo ATAQUE.
+	- Fritar (habilidade): Dobra a VELOCIDADE por 4 turnos.
+	- Raio de choque (ATAQUE): 1.2x ATAQUE e 50% de crítico.
+	- Eletrocanhão (ATAQUE): 1.8x ATAQUE e 0% de crítico.
+	- Eletrização (ATAQUE): Jogue uma moeda, se cair coroa, 1.2 de ATAQUE e se cair cara, este mesmo dano e paralisa o adversário, que terá que jogar uma moeda cada rodada e só desparalisa quando cair cara.
+	
+- Água
+	- Pancada congelada (habilidade): Paralisa o alvo por 2 rodadas, adversário terá que jogar uma moeda cada rodada e se cair cara desparalisa antes do prazo.
+	- Hidratação (habilidade): Cura 30% da própria vida. Limite de 2 usos.
+	- Hidro-carga (habilidade): Aumenta o dano em 1.5x por 3 rodadas
+	- Jato de água (ATAQUE): 1.5x ATAQUE e 60% de crítico.
+	- Projétil de água (ATAQUE): 2.5x de ATAQUE e 0% de crítico.
+	- Tromba aquática (ATAQUE): Jogue 4 moedas, causa 1.3x de ATAQUE para cada cara.
+	
+- Fogo
+	- Fagulha fervente (habilidade): Queima o adversário pelas próximas 4 rodadas, causando 0.4x ATAQUE habilidademente por rodada.
+	- Labareda incendiária (habilidade): Pelas próximas duas rodadas, se o adversário causar dano, ele recebe 0,6x de ATAQUE.
+	- Barreira de fogo (habilidade): Reduz os próximos dois ATAQUES adversários em 50%.
+	- Avanço flamejante (ATAQUE): Causa 5.5x ATAQUE, 0% de crítico, descansa nas duas próximas rodada. Não pode trocar o Mon.
+	- Canhão de chamas (ATAQUE): Causa 2.2x de ATAQUE e 15% de crítico.
+	- Vórtice explosivo (ATAQUE): Jogue uma moeda, se cair cara, causa 3.5x de ATAQUE, se cair coroa, 1.5x de ATAQUE. 
+	
+- Planta
+	- Semente venenosa (habilidade): Planta uma semente no adversário, que causa 0,2x de ATAQUE por rodada, até o final da partida. Limite de um uso, vale para qualquer Mon adversário ativo. Só afeta o Mon ativo, não os reservas. Utiliza o valor de ATAQUE do Mon que utilizou esta habilidade. Dura até acabar a batalha. Só pode existir 1 uso desta habilidade por partida, ou seja, outros Mons não poderão usar.
+	- Fruto saudável (habilidade): Cura 60% da própria vida total. Limitado a 2 usos por partida
+	- Árvore acolhedora (habilidade): Cura 15% da vida total de todos os Mons do jogador. Limitado a 2 usos por partida.
+	- Absorção (ATAQUE): Causa 1.2x de ATAQUE e cura metade do valor causado da própria vida.
+	- Raio solar (ATAQUE): Causa 1.8x de ATAQUE e 0% de crítico.
+	- Lâminas de folhas (ATAQUE): Jogue três moedas, causa 1,6x de ATAQUE para cada cara.
+	
+- Angelical
+	- Voo seguro (habilidade): Ignora o dano das duas próximas rodadas, mas sucetível a habilidades adversárias. Limitado a 3 usos.
+	- Cura luminosa (habilidade): Cura 2x do valor de ATAQUE do próprio Mon. Limitado a 2 usos.
+	- Defesa impenetrável (habilidade): Defende todo o dano da próxima rodada e volta dobrado ao Mon adversário.
+	- Nuvem dourada (habilidade): A partir da próxima rodada, começa a curar 5% de vida total toda rodada até o final da partida. Limite de 1 uso. Também cura outros Mons que entrarem no lugar. Fica com um detalhe visual de cura (um mais verde) no tile do Mon. A cura considera a vida total do Mon ativo. Dura até acabar a batalha. Só pode existir 1 uso desta habilidade por partida, ou seja, outros Mons não poderão usar.
+	- Luz angelical (ATAQUE): Causa 1.0x de ATAQUE e 25% de crítico.
+	- Raio dos céus (ATAQUE): Causa 1.5x de ATAQUE.
+
+- Escuridão
+	- Olhar abissal (habilidade): Escolha um ataque do Mon adversário para bloquear até o final da partida, apenas 1 uso por partida.
+	- Pesadelo terrível (habilidade): Faça o adversário cair em sono. Observação: Ao sair de sono ou confusão, o Mon fica imune ao mesmo efeito pelas próximas três rodadas.
+	- Sombras massivas(habilidade): O Mon adversário foge da luta, forçando o jogador adversário escolher um Mon da sua escolha, se tiver apenas um Mon adversário, não é possível utilizar esta habilidade.
+	- Investida Noturna (ATAQUE): Causa 1.4x de ATAQUE e 85% de crítico.
+	- Garra das trevas (ATAQUE): Jogue uma moeda, se cair coroa, causa 1.2x de dano, se cair cara, causa este dano e o Mon adversário entra em sono. Observação: Ao sair de sono ou confusão, o Mon fica imune ao mesmo efeito pelas próximas três rodadas.
+	- ATAQUE giratório (ATAQUE): Causa 1.9x de ATAQUE e 10% de crítico.
+
+- Dragão
+	- Hiper-raio (habilidade): Cure toda a vida deste Mon e não faça nada na próxima rodada. Limitado a uma vez por partida.
+	- Vendaval de dragão (habilidade): Troque o Mon do seu adversário por um da sua escolha. Limitado a uma vez por partida.
+	- Dragoportal (habilidade): Troque de Mon curando este e o próximo em 35% de vida. Limite de 2 usos.
+	- Garra de dragão (ATAQUE): Causa 50% da vida atual do adversário como dano.
+	- Rasante estrondoso (ATAQUE): Causa 3.0x de ATAQUE ao adversário, jogue uma moeda, se cair coroa, causa metade desse dano como dano ao próprio Mon.
+	- Cauda aniquiladora (ATAQUE): Causa 2.0x de ATAQUE a todos os Mons adversários. Descansa na próxima rodada.
+	
+- Psíquico
+	- Controle mental (habilidade): Escolha uma habilidade do Mon adversário para bloquear até o final da partida, apenas 2 usos por partida. 
+	- Sombra psíquica (habilidade): Escolha uma habilidade/ataque do adversário para copiar e substituir por essa até o final da partida. Vai ter a mesma quantidade de uso que a habilidade/ataque realmente tem. Copia os usos restantes do movimento escolhido. Não pode copiar outra Sombra psíquica. Não restaura usos de um movimento que aquele Mon já consumiu. A cópia acaba ao terminar a batalha.
+	- Confusão cerebral (habilidade): Deixe seu oponente confuso. (A confusão consiste em permitir o próximo ataque/habilidade do oponente e ainda jogar uma moeda, se cair coroa causa 10% da vida total do adversário de dano a ele mesmo em vez de atacar, se cair cara, o ataque/habilidade acontece normalmente) Limite de 5 usos. Observação: Ao sair de sono ou confusão, o Mon fica imune ao mesmo efeito pelas próximas três rodadas.
+	- Sono profundo (habilidade): Deixe seu oponente em sono. (O sono consiste em deixar seu adversário sem reação nenhuma por 2 rodadas, ele joga uma moeda antes de atacar, se cair coroa, continua dormindo, se cair cara, acorda e uso o seu ataque/habilidade normalmente). Limite de 5 usos. Observação: Ao sair de sono ou confusão, o Mon fica imune ao mesmo efeito pelas próximas três rodadas.
+	- Raio psíquico (ATAQUE): 1.8x ATAQUE e 15% de crítico.
+	- Esfera psíquica (ATAQUE): 1.2x ATAQUE e 60% de crítico.

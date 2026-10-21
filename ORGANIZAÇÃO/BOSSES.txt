@@ -1,0 +1,184 @@
+FADE MON X — OS ONZE DESAFIANTES
+
+Equipes variadas, selecionadas para oferecer confrontos difíceis.
+Todos os seis Mons de cada treinador possuem o nível indicado.
+Evolução 1 disponível no nível 15; evolução 2 disponível no nível 30.
+Mons sem evolução permanecem em sua forma básica.
+Lendários não incluídos: seus atributos fixos ainda precisam ser definidos.
+Os perfis descrevem a proposta de cada encontro, não habilidades novas.
+A dificuldade efetiva depende das habilidades equipadas e de testes de batalha.
+Nomes dos Mons preservados conforme o catálogo do jogo.
+
+============================================================
+BOSS I — NÍVEL 5
+TREINADORA: NINA VALE, A GUARDIÃ DA PASSAGEM
+============================================================
+Uma patrulheira jovem que conhece cada trilha da região. Seu jeito
+acolhedor desaparece quando começa a batalha: ela exige que o jogador
+aprenda a trocar de Mon e respeitar as vantagens elementares.
+
+EQUIPE:
+1. Shinx — Elétrico — Nível 5
+2. Carvito — Fogo — Nível 5
+3. Mudkip — Água — Nível 5
+4. Cactim — Planta — Nível 5
+5. Pirilume — Fogo — Nível 5
+6. Querubalto — Angelical — Nível 5
+
+============================================================
+BOSS II — NÍVEL 10
+TREINADOR: CAIO FERRAZ, O CAÇADOR DE TROFÉUS
+============================================================
+Um competidor convencido que coleciona insígnias de adversários vencidos.
+Trouxe Mons raros e básicos eternos para enfrentar o jogador antes que
+ele tenha acesso às primeiras evoluções.
+
+EQUIPE:
+1. Darumaka — Fogo — Nível 10
+2. Coralito — Água — Nível 10
+3. Amperu — Elétrico — Nível 10
+4. Líriom — Planta — Nível 10
+5. Noxvelo — Escuridão — Nível 10
+6. Centelino — Elétrico — Nível 10
+
+============================================================
+BOSS III — NÍVEL 20
+TREINADORA: ÍRIS VENTURA, A ESTRATEGISTA DA TORRE
+============================================================
+Uma estudiosa que trata cada confronto como uma partida de xadrez.
+Sua equipe apresenta o primeiro grande teste contra formas evoluídas,
+com vários tipos para dificultar a vitória usando apenas um favorito.
+
+EQUIPE:
+1. Luxio — Elétrico — Nível 20
+2. Charmeleon — Fogo — Nível 20
+3. Marshtomp — Água — Nível 20
+4. Leafon — Planta — Nível 20
+5. Auréolon — Angelical — Nível 20
+6. Sombrarca — Escuridão — Nível 20
+
+============================================================
+BOSS IV — NÍVEL 30
+TREINADOR: DANTE ROCHA, O SENTINELA DAS RUÍNAS
+============================================================
+Um explorador que protege a entrada de uma cidade esquecida.
+Sua equipe marca a chegada das segundas evoluções e apresenta um
+Dragão como ameaça central. Vencê-lo abre uma nova etapa da jornada.
+
+EQUIPE:
+1. Raiotauro — Elétrico — Nível 30
+2. Magmabrasa — Fogo — Nível 30
+3. Espumara — Água — Nível 30
+4. Selvarama — Planta — Nível 30
+5. Empíreus — Angelical — Nível 30
+6. Escamarca — Dragão — Nível 30
+
+============================================================
+BOSS V — NÍVEL 40
+TREINADORA: MAÍRA SAL, A CORSÁRIA DO ARQUIPÉLAGO
+============================================================
+Uma capitã carismática que nunca aceita uma vitória fácil.
+Gyrados lidera uma formação mista, reunida em viagens por regiões
+distantes. O jogador precisa preservar recursos para o confronto inteiro.
+
+EQUIPE:
+1. Gyrados — Água — Nível 40
+2. Zebstrika — Elétrico — Nível 40
+3. Darmanitan — Fogo — Nível 40
+4. Trevárvore — Planta — Nível 40
+5. Divinélio — Angelical — Nível 40
+6. Noxvelo — Escuridão — Nível 40
+
+============================================================
+BOSS VI — NÍVEL 50
+TREINADOR: OTÁVIO BRUMA, O MESTRE DO JARDIM FECHADO
+============================================================
+Um botânico recluso que recebe desafiantes em uma estufa abandonada.
+Sua proposta é uma batalha de desgaste, com Planta e Água sustentando
+a equipe enquanto Fogo, Elétrico e Escuridão ampliam suas opções.
+
+EQUIPE:
+1. Raizelo — Planta — Nível 50
+2. Swampert — Água — Nível 50
+3. Raijuba — Elétrico — Nível 50
+4. Fervisco — Fogo — Nível 50
+5. Darkrai — Escuridão — Nível 50
+6. Cacturion — Planta — Nível 50
+
+============================================================
+BOSS VII — NÍVEL 60
+TREINADORA: SELENE VOSS, A DAMA DO ECLIPSE
+============================================================
+Uma duelista silenciosa que observa o adversário antes de agir.
+Sua formação combina ameaças de vários tipos com um Dragão de destaque.
+É um encontro pensado para punir equipes que dependem de um único Mon.
+
+EQUIPE:
+1. Darkrai — Escuridão — Nível 60
+2. Empíreus — Angelical — Nível 60
+3. Fulguravis — Elétrico — Nível 60
+4. Chamarro — Fogo — Nível 60
+5. Ondrilo — Água — Nível 60
+6. Asteragon — Dragão — Nível 60
+
+============================================================
+BOSS VIII — NÍVEL 70
+TREINADOR: RAUL TEMPESTA, O COMANDANTE DO CUME
+============================================================
+Um veterano que treina acima das nuvens, longe das cidades.
+Dragonite ocupa o centro de uma equipe com quatro outros tipos.
+O jogador precisa chegar preparado para enfrentar várias ameaças seguidas.
+
+EQUIPE:
+1. Dragonite — Dragão — Nível 70
+2. Luxray — Elétrico — Nível 70
+3. Charizard — Fogo — Nível 70
+4. Maremundo — Água — Nível 70
+5. Venusar — Planta — Nível 70
+6. Amperalto — Elétrico — Nível 70
+
+============================================================
+BOSS IX — NÍVEL 80
+TREINADORA: HELENA ARDÓSIA, A REGENTE DAS CINZAS
+============================================================
+Uma antiga campeã que abandonou os torneios para formar sua própria ordem.
+Dois Dragões acompanham quatro épicos de tipos distintos. Sua equipe
+foi pensada como o primeiro grande obstáculo da reta final.
+
+EQUIPE:
+1. Wyrmélio — Dragão — Nível 80
+2. Escamarca — Dragão — Nível 80
+3. Swampert — Água — Nível 80
+4. Leafon — Planta — Nível 80
+5. Centelino — Elétrico — Nível 80
+6. Divinélio — Angelical — Nível 80
+
+============================================================
+BOSS X — NÍVEL 90
+TREINADOR: VIKTOR NERO, O HERDEIRO DO ABISMO
+============================================================
+O rival que chegou antes de você a todos os lugares importantes.
+Reuniu seis épicos e acredita que ninguém merece enfrentar o campeão
+sem antes derrotá-lo. É a última prova antes da batalha decisiva.
+
+EQUIPE:
+1. Asteragon — Dragão — Nível 90
+2. Dragonite — Dragão — Nível 90
+3. Darkrai — Escuridão — Nível 90
+4. Gyrados — Água — Nível 90
+5. Raijuba — Elétrico — Nível 90
+6. Charizard — Fogo — Nível 90
+
+============================================================
+BOSS FINAL — NÍVEL 100
+TREINADOR: LÚCIFER
+============================================================
+A lenda caída que hoje vaga ceifando almas e destruindo famílias.
+
+EQUIPE:
+1. Luxray — Elétrico — Nível 100
+2. Swampert — Água — Nível 100
+3. Divinélio — Angelical — Nível 100
+4. Wyrmélio — Dragão — Nível 100
+5. Asteragon — Dragão — Nível 100
+6. Dragonite — Dragão — Nível 100

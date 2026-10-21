@@ -1,0 +1,376 @@
+FADE MON X — VERSÃO LOCAL v1.1
+============================
+
+v1.1 — ATUALIZAÇÃO MAIS RECENTE (21/10/2026)
+Desmarcar uma opção de um dia perfeito retira também o bônus de XP e moedas.
+Completar novamente devolve o mesmo bônus, sem duplicar recompensas.
+A confirmação e a animação mostram o desconto da tarefa e do bônus.
+O guia de elos usa os sete PNGs originais e destaca CAMPEÃO nas ligas
+conquistadas. Os títulos registrados continuam mesmo após rebaixamento.
+Novos jogadores recebem um tile pixelado com o texto de BOAS VINDAS.txt.
+A mensagem aparece uma única vez; saves existentes não são interrompidos.
+
+v1.1 — ATUALIZAÇÃO ANTERIOR (20/10/2026)
+Calendário pixelado do mês atual em Mon Selvagem: cinza comum, azul raro,
+rosa épico, amarelo lendário. A espécie é sorteada; as raridades mantêm
+o calendário existente (lendário em 1º de janeiro).
+Dois cliques num Mon armazenado abrem sua ficha.
+Expedições, inscrições em torneio e recuperação após derrota no Subúrbio
+retiram o Mon dos ativos, mantendo-o armazenado com relógio e indicação
+de indisponibilidade. Após liberação, a reativação é manual. Se necessário,
+seis espaços de reserva protegem uma coleção com as 500 boxes ocupadas.
+Os 11 bosses têm 66 espécies distintas, sem alterar níveis ou recompensas.
+Batalhas já iniciadas são mantidas; próximas batalhas usam as novas equipes.
+Sorteios de capangas, torneio e selvagens usam todo o catálogo elegível
+para o nível/raridade, incluindo os novos Mons.
+Exportações pelo jogo usam sempre fade.json. Nenhum ZIP novo é necessário.
+Cura luminosa: 2x ataque, 2 usos. Hidratação: 30% HP máximo, 2 usos.
+Lendários: seis movimentos preenchidos com os seis do próprio elemento.
+Dragões: ao subir aos níveis 25 e 50, a escolha daquele nível permite
+qualquer elemento. São duas escolhas especiais, não dois slots extras.
+Escolhas podem ser guardadas; escolhas especiais têm prioridade sobre
+escolhas comuns pendentes. Os outros níveis mantêm o aprendizado normal.
+Níveis anteriores à instalação não concedem escolhas retroativas.
+Ganhos individuais de XP exibem retrato, barra animada e mudança de nível.
+O som de subida respeita a opção de sons nas Configurações.
+O torneio inclui um quadro com todos os elos, entradas, prêmios e níveis.
+A versão visível é v1.1; os números internos do save/catálogo são mantidos
+para garantir compatibilidade com o progresso existente.
+
+ATUALIZAÇÃO ANTERIOR DE 20/10/2026 (identificada antes como 3.0)
+224 espécies da MONDEX AJUSTADA, com atributos, preços, tipos, raridades,
+evoluções e imagens atualizados. Salpisco tem ataque inicial 2, confirmado.
+Lendários usam atributos finais fixos: sem crescimento ou evolução.
+Novo tipo Psíquico com seus seis movimentos e ciclo de efetividade:
+Psíquico > Angelical > Escuridão > Psíquico. Dragão não tem vantagem.
+
+Saves antigos são convertidos pelos nomes das espécies, não pelos novos
+números. UID, serial, equipe, boxes, XP, moedas, pedras e histórico são
+preservados. Atributos são recalculados com a nova curva; não há compensação
+em XP nem pagamento retroativo de recompensas. A conversão acontece uma vez.
+O navegador guarda uma cópia antes da conversão/importação. Se não for
+possível converter com segurança, o jogo não sobrescreve o progresso.
+Importe o arquivo de save atualizado pelas Configurações se for usar outro
+endereço/navegador. Nunca publique seus saves junto com os arquivos de dist.
+
+Mondex: #001 a #224 aparecem mesmo nas espécies ainda não descobertas.
+O serial individual (#0001 etc.) permanece apenas na ficha do Mon.
+Treino diário: Descanso marca a tarefa com a mesma recompensa, até dois
+dias por semana (segunda a domingo). Hoje e ontem continuam editáveis.
+Desmarcar o treino também remove o descanso daquele dia e desconta a
+recompensa normal. Marcar treino e descanso não paga duas vezes.
+XP dos bosses duplicado; moedas, capangas e divisão do XP mantidos.
+
+Movimentos: ataques têm 20 usos e habilidades 8, exceto limites explícitos.
+Hidratação 3; Semente 1 por equipe; Fruto 2; Árvore 2; Voo 3; Cura luminosa 5;
+Nuvem 1 por equipe; Olhar abissal 1; Hiper-raio 1; Vendaval 1; Dragoportal 2;
+Controle mental 2; Confusão 5; Sono profundo 5.
+Semente segue o Mon adversário ativo; Nuvem segue o Mon aliado ativo.
+Não afetam reservas. Nuvem inicia na rodada seguinte e cura 5% do HP máximo
+do Mon ativo. Seus limites são individuais por equipe, não compartilhados.
+Sono dura no máximo duas rodadas, com moeda para acordar antes de agir.
+Confusão, sono e paralisia não coexistem; ao sair, há imunidade por três
+rodadas ao mesmo efeito. Confusão substitui a ação por 10% de dano próprio
+se a moeda der coroa. Garra das trevas e Pesadelo agora causam sono.
+Olhar abissal bloqueia ataques; Controle mental bloqueia habilidades.
+Sombra psíquica copia usos restantes sem recuperar usos já consumidos,
+substitui a si mesma e termina ao final da batalha/fase do torneio.
+Avanço flamejante: 5,5x ataque, duas rodadas de descanso sem troca.
+Demais multiplicadores e curas seguem o TXT atualizado.
+
+As seções versionadas abaixo são o histórico de alterações anteriores.
+Em caso de diferença, a seção v1.1 no início deste arquivo prevalece.
+
+COMO JOGAR E HOSPEDAR
+Abra dist/index.html no navegador. Nenhuma instalação ou compilação necessária.
+Para hospedar, envie TODO o conteúdo de dist, mantendo index.html na raiz.
+Nenhum arquivo foi publicado na internet. O servidor local serve só para testes.
+O progresso pertence ao navegador e endereço. Exporte o backup JSON em
+Configurações antes de mudar de endereço ou limpar os dados do navegador.
+
+ARQUIVOS
+dist/data.js: catálogo incorporado da MONDEX AJUSTADA e equipes dos bosses.
+dist/assets-v2.js: associação das imagens e cenários atualizados.
+dist/engine.js: atributos, crescimento, XP e batalha por turnos.
+dist/adventure.js: expedições, subúrbio, torneio, equipamentos e migração.
+dist/adventure-ui.js: telas e animações das novas atividades.
+dist/app.js: interface principal e salvamento local.
+dist/styles.css, adventure.css e profile.css: visual e adaptação a telas pequenas.
+dist/migration.js: conversão segura da numeração antiga para o novo catálogo.
+dist/update.css: descanso semanal e indicadores dos novos efeitos.
+dist/assets: 224 retratos atuais, cenários, ligas e 21 itens.
+tests.cjs, adventure-tests.cjs, rules-v21-tests.cjs e rules-v22-tests.cjs: executar com Node para verificar as regras.
+effectiveness-tests.cjs: testes de efetividade por Mon e das exceções.
+profile-tests.cjs: testes de histórico individual, cores de HP e prévias.
+rules-v24-tests.cjs: efetividade 2x/3x e escudos com contadores.
+Editar a planilha não modifica automaticamente os atributos incorporados.
+
+IDENTIFICADORES (2.3.1)
+Os números individuais e de espécie aparecem apenas na ficha de estatísticas.
+Na versão 3.0, a Mondex também exibe o número da espécie, incluindo desconhecidos.
+Os identificadores internos e os históricos de Mons repetidos são preservados.
+Removida a frase explicativa de ganhos do próximo nível na ficha.
+
+FICHA E HISTÓRICO INDIVIDUAL (2.3)
+Ficha azul com retrato, atributos reais, crescimento, overall e XP vitalício;
+painel vermelho com os quatro movimentos e seus usos. Layout responsivo.
+Vitórias: cada Mon levado à batalha recebe uma vitória, inclusive reservas e
+derrotados, quando a equipe vence. Cada fase do torneio conta uma batalha.
+Nocautes: pertencem ao Mon que causou o dano final; queimadura, semente e
+reflexão mantêm o crédito do causador. Esgotamento e dano próprio não contam.
+Treinos e revanches não contam para vitórias ou nocautes.
+Expedições são contabilizadas ao recolher a recompensa, uma vez por membro.
+Capturas novas registram a data; compras registram a data de obtenção.
+Mons anteriores têm histórico parcial iniciado na atualização e data antiga
+não registrada. Não é possível reconstruir ações antigas que não foram salvas.
+Históricos acompanham o ID individual, inclusive após evolução; duplicatas
+da mesma espécie não compartilham os contadores. Exportação preserva tudo.
+
+PRÉVIAS, ESCUDOS E VIDA (2.4)
+Sem vantagem: nenhum indicador. Com vantagem: 2× junto ao nome do Mon.
+Ataque Normal recebe 2×; ataque do próprio elemento recebe 3× no total,
+somente quando o tipo do Mon já tem vantagem sobre o alvo. Sem vantagem,
+o dano continua normal, mesmo usando o próprio elemento. Vale para ambos os lados.
+Na ficha: tipos contra os quais o Mon tem vantagem. Ataques em área mostram
+somente alvos com bônus. A prévia é elemental, não uma promessa de dano:
+críticos, moedas, proteção e efeitos continuam sendo resolvidos na jogada.
+Habilidades e ataques percentuais não recebem bônus elemental; Dragão nunca
+tem vantagem. A prévia usa a mesma função que calcula o multiplicador real.
+Defesas aparecem como escudos coloridos com número, sem a antiga linha de texto.
+Labareda, Voo seguro e Reflexão mostram rodadas restantes; Proteção e Barreira
+de fogo mostram ataques restantes, preservando as regras existentes. Nome e
+unidade aparecem ao passar o mouse ou focar o escudo. Efeitos encerrados e
+Mons nocauteados não mostram escudos. A ativação respeita a ordem das ações.
+HP: acima de 75% verde; acima de 50% até 75% amarelo; acima de 25% até 50%
+laranja; de 0% até 25% vermelho. Transições usam o percentual real, sem
+arredondar antes. A trilha vermelha de dano animado permanece independente.
+
+PROGRESSO E MIGRAÇÃO
+O save anterior é mantido. Lendários passam ao nível 100 fixo, preservando seus
+atributos originais. Não recebem XP fictício por essa mudança.
+O XP vitalício passa a ser registrado separadamente: XP recebido no nível 100
+aumenta o histórico, mas não o nível nem a barra. Saves antigos normais mantêm
+o total calculado pela progressão: (nível - 1) × (nível + 8) / 2 + XP atual.
+Nível 100 equivale a 5.346 XP de progressão para Mons normais; os ganhos
+posteriores são adicionais. Lendários começam sem XP de progressão fictício.
+Venda continua usando metade do preço da família + XP vitalício em moedas.
+Lendários sem preço definido continuam não vendáveis.
+Insígnias e pagamentos antigos não são recalculados nem pagos novamente.
+Pedras aplicadas são perdidas quando o Mon é vendido ou removido.
+
+CARREIRA E REVANCHES
+Uma tentativa de carreira por dia, inclusive boss final.
+Bosses I a X exigem 10 capangas cada. O final não tem capangas; vencer o X
+libera o final, respeitando a tentativa diária (desafio no dia seguinte).
+Moedas de boss vão uma vez à conta. XP de boss é TOTAL dividido entre os
+participantes, incluindo nocauteados. A sobra vai para o Mon em campo.
+Um único participante recebe todo o XP. Armazenados fora da batalha não recebem.
+Capangas: moedas únicas para a conta e XP TOTAL dobrado, dividido entre os
+Mons da equipe que entrou na batalha, incluindo nocauteados. A sobra vai ao
+Mon que causou o último dano adversário (ataque, veneno, queimadura ou reflexão).
+Sem autor registrado, a sobra vai ao Mon em campo. Armazenados e Mons
+indisponíveis que não entraram na batalha não recebem XP. Recompensas antigas
+já pagas não são recalculadas.
+Não há XP extra por nocaute na carreira nem prêmio de Mon.
+
+Etapa     Boss: moedas / XP TOTAL      Capanga: moedas / XP TOTAL
+I         250 / 25                      10 / 20
+II        500 / 50                      20 / 40
+III       1000 / 100                    30 / 60
+IV        2000 / 200                    40 / 80
+V         3500 / 350                    50 / 100
+VI        5500 / 550                    60 / 120
+VII       8500 / 850                    70 / 140
+VIII      12500 / 1250                  80 / 160
+IX        17500 / 1750                  90 / 180
+X         25000 / 2500                  100 / 200
+FINAL     35000 / 3500                  Sem capangas
+
+Revanche disponível após vencer o boss. É treino: sem XP, sem moedas,
+sem consumir tentativa diária e sem alterar a carreira.
+Apenas Mons disponíveis entram em batalhas; os reservados ficam de fora.
+Treino continua permitindo dois Mons próprios disponíveis, sem recompensas.
+
+EXPEDIÇÕES
+Até três Mons disponíveis, ativos ou armazenados. Uma missão por vez.
+Duração: 48 horas reais do dispositivo. O nível é registrado na saída.
+Coleta: cada nível de cada participante vale uma moeda.
+Informativa: cada Mon recebe seu próprio nível em XP.
+Reconhecimento: metade do nível em moedas e em XP, arredondada para baixo
+separadamente por participante.
+Os participantes ficam bloqueados para batalhas, XP manual, evolução, troca,
+venda e equipamentos até o resgate. O prêmio só pode ser resgatado uma vez.
+Fechar o jogo não pausa o prazo. Lendários no nível 100 também podem participar.
+
+SUBÚRBIO
+Um contra um: adversário comum, raro ou épico, do nível do seu Mon.
+Até duas tentativas por dia; uma derrota encerra as tentativas restantes.
+Exige saldo suficiente: a aposta (valor do nível) é debitada ao entrar.
+Vitória devolve a aposta e paga o mesmo valor como lucro.
+Empate devolve a aposta, conta como tentativa ganha e não bloqueia.
+Derrota perde a aposta e bloqueia SOMENTE esse Mon por 24 horas, inclusive
+derrota por esgotamento. Durante o bloqueio não pode batalhar, evoluir,
+receber XP manual, ser vendido, trocar equipamento ou ir para expedição.
+Outros Mons continuam disponíveis. Recarregar retoma o adversário já sorteado.
+
+TORNEIO
+Uma inscrição por mês local. De 1 a 3 Mons próprios; adversários sempre
+usam três. Inscrição e prêmio não mudam conforme o tamanho da sua equipe. Nenhum limite de nível ou pedra para a equipe do jogador.
+Os participantes ficam reservados até o encerramento. Não podem ser vendidos,
+entrar em outros modos ou aprender/trocar movimentos durante a participação.
+Podem evoluir e trocar pedra entre fases, sem cura gratuita ou reviver.
+Quatro fases: 1ª Fase, 2ª Fase, Semifinal e Final.
+Adversários e equipamentos são sorteados na inscrição e salvos.
+
+Liga       Ingresso     Prêmio total     Níveis adversários
+Bronze     20           120              1–10
+Prata      40           240              11–25
+Ouro       80           480              26–40
+Platina    160          960              41–55
+Diamante   320          1920             56–70
+Mestre     640          3840             71–85
+Lendário   1500         9000             86–100
+
+Vencer promove uma liga (máximo Lendário). Perder na primeira fase rebaixa
+uma liga (mínimo Bronze). Perder nas outras mantém a liga. Empate elimina,
+pois não houve vitória para avançar. Desistência segue a mesma regra.
+O prazo é a virada do mês, NÃO 30 dias desde a inscrição.
+Na virada: eliminação automática e rebaixamento, inclusive com fase em curso.
+Vida e usos permanecem entre fases. Queimadura, paralisia, bloqueios e demais
+efeitos de combate são removidos entre batalhas.
+Se todos forem derrotados, eliminação definitiva daquela inscrição.
+Recompensas e pagamento são únicos. Recarregar não altera sorteios nem paga de novo.
+Cerimônias animadas na inscrição, entrada das fases e resultados.
+
+CONSUMÍVEIS
+Apenas entre fases concluídas do torneio, nunca durante a batalha.
+Poções não revivem e não ultrapassam o HP máximo.
+Poção I: 50 HP / 50 moedas; II: 125 / 100; III: 350 / 200; IV: 1000 / 500.
+Éter I: +3 usos / 50; II: +6 / 100; III: +9 / 200; IV: todos / 500.
+Éter afeta todos os ataques e habilidades do alvo, respeitando o máximo
+individual (inclusive movimentos limitados a 1 ou 2 usos).
+Limite: um Éter por Mon em cada intervalo entre fases.
+Restauração: 1000 moedas; revive com 30% do HP máximo, arredondado para cima,
+e recupera um uso de cada movimento, sem ultrapassar o máximo.
+Limite: uma Restauração para a EQUIPE em cada intervalo.
+Itens sem efeito não são consumidos. Pode usar Éter em nocauteado; só
+Restauração o revive. Poções não têm limite de quantidade por intervalo.
+
+PEDRAS
+Uma pedra por Mon, consumida ao aplicar após confirmação com prévia de atributos.
+Não é possível remover ou transferir a pedra. Substituir destrói a anterior,
+sem devolução nem acúmulo de bônus. Evoluir mantém a pedra aplicada.
+Pedras já aplicadas são preservadas, sem cobrança retroativa.
+Categorias I / II / III custam 200 / 1000 / 5000 moedas.
+Vida: +50 / +250 / +1500 HP máximo.
+Ataque: +5 / +25 / +150.
+Velocidade: +5 / +25 / +150.
+Crítico: +10 / +20 / +35 PONTOS PERCENTUAIS, até 100%, inclusive em ataques
+originalmente sem crítico. Críticos dobram o dano.
+Trocar pedra no torneio NÃO aumenta a vida atual; ao reduzir o máximo,
+limita a vida atual ao novo máximo. Nocauteado continua nocauteado.
+Adversários de carreira e torneio: até nível 10 sem pedra; 11–40 categoria I;
+41–70 categoria II; 71–100 categoria III, com tipo sorteado.
+Overall continua teto(((ataque × 10) + vida) / 100), limitado a 0–100.
+Considera a pedra equipada em ataque/vida, não buffs temporários.
+
+QUEDA E ATIVIDADES
+Queda continua removendo permanentemente o Mon mais forte de toda a coleção,
+após confirmação, incluindo participantes reservados. Não há substituição.
+Uma expedição continua só com os restantes; se ficar vazia, encerra sem prêmio.
+Um torneio continua com os restantes; sem participantes, é encerrado.
+A pedra, o indivíduo e seu XP são perdidos; nada retorna à mochila.
+A espécie permanece descoberta. IDs individuais nunca são reutilizados.
+
+REGRAS ANTERIORES PRESERVADAS
+- Seis ativos e cinco boxes de 100. Repetidos têm progresso individual.
+- XP para subir: nível atual + 4; ofertas de movimentos nos múltiplos de 5.
+- Evolução manual nos níveis 15 e 30. Atributos seguem a trajetória da família.
+- Atacar e Trocar; quatro espaços de movimentos; sem itens durante o combate.
+- Ataques com 20 usos, habilidades com 10, exceto limites específicos.
+- Esgotar TODOS os ataques E habilidades derrota o Mon nos dois lados.
+  Não existe Esforço. Bloqueio não conta como esgotamento.
+- O último movimento é executado antes da derrota por esgotamento.
+- Velocidade define a ordem; empate favorece o jogador. Troca voluntária
+  prioritária consome a ação; substituição após nocaute não consome outra.
+- Defesas só afetam ataques posteriores à ativação. Animações sequenciais,
+  dano vermelho seguido pela redução da barra, moedas e cruz verde de cura.
+- Banco adversário: cinco slots, vermelhos para reservas vivas.
+- Encontro selvagem diário: 1º de janeiro lendário nível 100; dia 1 dos outros
+  meses épico; dias múltiplos de 5 raro; demais comum. Não lendários nível 1–5.
+- Captura garantida se vivo e estritamente abaixo de 10% do HP. Um encontro/dia.
+- Calendário: hoje e ontem editáveis. Cada tarefa +1 XP e +1 moeda; vitória
+  +2 e +2; bônus único +12 e +12 por todas as seis tarefas mais vitória.
+  Desmarcar exige confirmação e desconta a recompensa; saldo pode ser negativo.
+  Remarcar devolve sem duplicar. Bônus histórico não é repetido.
+- O jogo começa com 500 moedas. Loja e calendário acessíveis sem Mons.
+
+EFETIVIDADE — VERSÃO 2.4
+Vantagem calculada pelo tipo do Mon atacante contra o tipo de cada defensor.
+Um Mon de Água usando Cabeçada contra Fogo causa o dobro do dano; usando
+Projétil de água, causa o triplo. Regra igual para jogador e adversário.
+Golpes de outro elemento não criam vantagem sozinhos; quando o Mon já tem
+vantagem, mantêm 2x, e somente o próprio elemento eleva o multiplicador a 3x.
+Vantagens de 2x: Elétrico > Água; Água > Fogo; Fogo > Planta;
+Planta > Elétrico; Angelical > Escuridão. Demais combinações: 1x.
+Dragão não tem vantagem contra nenhum tipo. Não foram adicionadas resistências.
+Ataques em equipe calculam a efetividade individualmente para cada alvo.
+Ataques percentuais (Garra de dragão) não recebem bônus elemental.
+Queimadura, Semente venenosa, cura e proteção não recebem bônus elemental.
+Reflexão mantém sua própria fórmula, sem aplicar outra efetividade na devolução.
+A regra vale para as próximas ações, inclusive em partidas salvas; não refaz
+dano, recompensas ou resultados de ações já concluídas.
+
+REGRAS NOVAS DA VERSÃO 2.2
+Nuvem dourada: 1 uso por batalha; começa na rodada seguinte à ativação.
+Cura 5% da vida máxima ao final da rodada, somente vivo e em campo.
+Permanece ativa ao voltar do banco, mas não cura enquanto estiver no banco.
+No torneio, seus usos persistem; o Éter pode recuperar até 1 uso entre fases.
+O efeito é removido entre fases. Esgotamento continua contando TODOS os usos,
+inclusive Nuvem dourada: se ela for o último uso, o Mon é derrotado ao gastá-lo.
+Saves antigos convertem 10 usos intactos em 1; se já usada, fica com 0.
+A migração não repõe usos a cada carregamento nem altera pagamentos concluídos.
+Recompensas dos bosses/capangas aparecem apenas no botão Recompensas.
+Capangas vencidos são marcados com ✅.
+
+REGRAS NOVAS DA VERSÃO 2.1
+Movimentos dos adversários recém-gerados, inclusive selvagens:
+- Níveis 1–4: 2 normais.
+- Níveis 5–9: 2 normais + 1 elemental.
+- Níveis 10–14: 2 normais + 2 elementais.
+- Níveis 15–19: 1 normal + 3 elementais.
+- Níveis 20–100: 4 elementais.
+Nenhuma repetição e sempre pelo menos um ataque. No nível 20 em diante,
+80% dos sorteios forçam dois ataques + duas habilidades; os demais são
+aleatórios e também podem resultar em dois de cada.
+Treinos preservam os movimentos dos seus Mons.
+Bosses têm movimentos fixados no primeiro confronto, inclusive nas revanches.
+Em saves antigos, uma batalha de boss ainda salva fornece os movimentos fixos;
+sem esse registro, eles serão fixados no próximo encontro. Capangas continuam
+aleatórios. Encontros selvagens/torneios já sorteados não são alterados.
+Habilidades de troca sem alvo vivo consomem 1 uso e a ação, sem outro efeito.
+Movimentos bloqueados não podem ser selecionados nem consomem usos.
+Sem movimentos possíveis nas DUAS equipes, considerando reservas vivas,
+ocorre empate. Com apenas um lado sem ação, ele pode trocar ou aguardar.
+O empate não gera prêmio; no torneio elimina e no subúrbio devolve a aposta,
+conforme as regras existentes.
+Condições nos cartões: QUE vermelho, PAR amarelo, ENV roxo (Semente venenosa),
+DES preto. Somem quando o efeito termina ou o Mon é derrotado.
+CON e DOR estão reservados visualmente, sem inventar novas mecânicas.
+Status mostra os ganhos reais do próximo nível, conforme a trajetória da
+família. Pedras não entram nesse crescimento. No nível máximo o ganho é zero.
+
+IMAGENS
+As 103 espécies usam imagens fornecidas na pasta IMAGENS DOS MONs.
+Bulbassaur/Ivyssaur/Venusar usam arquivos Bulbasaur/Ivysaur/Venusaur;
+os nomes do catálogo foram preservados. Absol agora também tem imagem.
+Sete cenários atualizados: capangas, bosses, selvagens, treino, expedição,
+subúrbio e torneio. Ícones de ligas e todos os 21 itens incorporados.
+Os originais não foram editados. A exibição dos Mons usa canvas pixelado.
+
+LIMITES E SEGURANÇA DO SAVE
+Tudo permanece local. Não há conta, servidor, nuvem ou transmissão do calendário.
+Relógio, edição de JSON e restauração de backup antigo não podem ser protegidos
+contra fraude em uma aplicação estática. Exporte backups regularmente.
+Não importe arquivos desconhecidos. Personagens e marcas mantêm seus titulares.
+Os testes de regras e interface não substituem balanceamento prolongado.

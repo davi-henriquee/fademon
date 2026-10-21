@@ -1,0 +1,39 @@
+ELÉTRICO (ZAPDOS):
+- ÉPICO: 2X¹ - 1X² - 1X³
+- RARO:  2X¹ - 2X² - 1X³
+- COMUM: 1X¹ - 3X² - 2X³
+
+ÁGUA (KYOGRE):
+- ÉPICO: 1X¹ - 1X² - 2X³
+- RARO:  2X¹ - 2X² - 1X³
+- COMUM: 2X¹ - 2X² - 2X³
+
+FOGO (MOLTRES):
+- ÉPICO: 1X¹ - 2X² - 1X³
+- RARO:  2X¹ - 2X² - 1X³
+- COMUM: 2X¹ - 2X² - 2X³
+
+PLANTA (CELEBI):
+- ÉPICO: 1X¹ - 1X² - 2X³
+- RARO:  1X¹ - 2X² - 2X³
+- COMUM: 2X¹ - 2X² - 2X³
+
+ANGELICAL (ARCEUS, SOLGALEO, CRESSELIA, RESHIRAM):
+- ÉPICO: 1X¹ - 1X¹ - 1X³
+- RARO:  2X¹ - 1X² - 1X³
+- COMUM: 3X¹ - 1X² - 1X³
+
+ESCURIDÃO (ABSOL, ECLIPSEA, LUNALA):
+- ÉPICO: 2X¹ - 000 - 2X³
+- RARO:  4X¹ - 1X² - 000
+- COMUM: 3X¹ - 2X² - 1X³
+
+DRAGÃO (RAYQUAZA):
+- ÉPICO: 2X¹ - 000 - 1X³
+- RARO:  000 - 1X² - 3X³
+- COMUM: 000 - 000 - 000
+
+PSÍQUICO (MEW, MEWTWO, GIRATINA):
+- ÉPICO: 1X¹ - 2X² - 1X³
+- RARO:  2X¹ - 2X² - 1X³
+- COMUM: 2X¹ - 2X¹ - 2X³

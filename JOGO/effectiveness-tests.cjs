@@ -1,0 +1,21 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');global.window=global;
+for(const file of ['data','engine','assets-v2','adventure'])vm.runInThisContext(fs.readFileSync(__dirname+'/dist/'+file+'.js','utf8'));
+const E=FMX,types=[...new Set(E.D.mons.map(m=>m.type))];let count=0;
+function test(name,fn){const random=Math.random;try{Math.random=()=>.99;fn();count++;console.log('OK',name);}finally{Math.random=random;}}
+function mon(type,moves){const m=E.createMon(E.D.mons.find(m=>m.type===type&&m.rarity!=='Lendário').id,30);m.moves=moves;return m;}
+function battle(attacker,defender,move='headbutt'){const b=E.createBattle('training',[mon(attacker,[move,'protect'])],[mon(defender,['protect'])]);for(const m of [...b.player,...b.enemy]){m.stats={hp:10000,atk:100,speed:1};m.hp=10000;}b.player[0].stats.speed=100;return b;}
+function loss(b){return 10000-b.enemy[0].hp;}
+test('All type pairs use the attacking species even with a Normal move',()=>{const chart={Elétrico:'Água',Água:'Fogo',Fogo:'Planta',Planta:'Elétrico',Angelical:'Escuridão'};for(const p of types)for(const e of types){const b=battle(p,e);E.turn(b,{move:'headbutt'});assert.equal(loss(b),130*(chart[p]===e?2:1),p+' -> '+e);}});
+test('The move type cannot grant an unrelated species elemental advantage',()=>{const b=battle('Elétrico','Fogo','projectile');E.turn(b,{move:'projectile'});assert.equal(loss(b),240);assert(!b.logs.includes('É super eficaz!'));});
+test('Species advantage still applies to a different elemental move',()=>{const b=battle('Água','Fogo','flamecannon');E.turn(b,{move:'flamecannon'});assert.equal(loss(b),480);});
+test('Enemies use exactly the same species-based rule',()=>{const b=battle('Fogo','Água','protect');b.enemy[0].moves=['headbutt'];b.enemy[0].pp={headbutt:20};b.enemy[0].stats.speed=1000;E.turn(b,{move:'protect'});assert.equal(10000-b.player[0].hp,260);});
+test('Area attacks evaluate each defender separately',()=>{const b=battle('Água','Fogo','tail');for(const type of ['Planta','Elétrico']){const m=E.combatMon(mon(type,['protect']));m.stats={hp:10000,atk:100,speed:1};m.hp=10000;b.enemy.push(m);}E.turn(b,{move:'tail'});assert.deepEqual(b.enemy.map(m=>10000-m.hp),[400,200,200]);});
+test('Dragon never has advantage, even when using moves of another element',()=>{for(const type of types){const b=battle('Dragão',type,'projectile');E.turn(b,{move:'projectile'});assert.equal(loss(b),240,type);}});
+test('Percentage damage ignores elemental advantage',()=>{const b=battle('Água','Fogo','dragonclaw');E.turn(b,{move:'dragonclaw'});assert.equal(loss(b),5000);assert(!b.logs.includes('É super eficaz!'));});
+test('Burn and poison do not gain elemental multipliers',()=>{for(const [move,damage] of [['spark',40],['seed',20]]){const b=battle('Água','Fogo',move);E.turn(b,{move});assert.equal(loss(b),damage);}});
+test('Reflection keeps its own factor and never applies reflector species advantage',()=>{const b=battle('Fogo','Água');b.enemy[0].status.reflect=100;E.turn(b,{move:'headbutt'});assert.equal(10000-b.player[0].hp,260);assert.equal(loss(b),0);});
+test('Reflection does not multiply incoming effectiveness a second time',()=>{const b=battle('Água','Fogo');b.enemy[0].status.reflect=100;E.turn(b,{move:'headbutt'});assert.equal(10000-b.player[0].hp,520);});
+test('Fire defense reflection remains 0.6 times attack without elemental bonus',()=>{const b=battle('Fogo','Água');b.enemy[0].status.flame=100;E.turn(b,{move:'headbutt'});assert.equal(10000-b.player[0].hp,60);});
+test('Healing is unchanged and shield reduction follows effective attack damage',()=>{const b=battle('Água','Fogo','hydrate');b.player[0].hp=1000;E.turn(b,{move:'hydrate'});assert.equal(b.player[0].hp,4000);const c=battle('Água','Fogo');c.enemy[0].status.shield={hits:2,factor:.75,afterAction:0};E.turn(c,{move:'headbutt'});assert.equal(loss(c),195);});
+test('Reloaded battles use species effectiveness and retain sequential damage events',()=>{const b=E.clone(battle('Água','Fogo'));E.turn(b,{move:'headbutt'});assert.equal(loss(b),260);const attack=b.events.findIndex(e=>e.kind==='attack'),damage=b.events.findIndex(e=>e.kind==='damage');assert(damage>attack);assert.equal(b.events[damage].amount,260);assert.equal(b.events[damage].after,9740);});
+console.log(count+' effectiveness test groups passed.');
