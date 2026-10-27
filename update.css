@@ -26,3 +26,23 @@
 @media(max-width:760px){.brand-logo{width:60px;height:60px}.brand{font-size:18px;gap:7px}.brand small{font-size:6px;letter-spacing:.5px}.welcome-logo{width:96px;height:96px}}
 @media(max-width:400px){.brand small{display:none}.brand{font-size:15px}.brand-logo{width:48px;height:48px}.task-info-button{width:25px;height:25px}}
 
+/* Permanent expedition slots and a calmer reward presentation. */
+.mon-xp-card .bar i{transition-duration:1.2s}
+.expedition-card.locked{background:#e4e1d5;border-style:dashed}
+.expedition-card.locked .expedition-card-head b{color:#6b6256}
+.expedition-purchase-price{display:block;margin:12px 0 14px;font-size:22px;color:#315441}
+
+/* Estado Crítico, salvamentos anuais e ovos épicos. */
+.critical-status{margin-top:18px;padding:20px;border:3px solid #8b4047;background:#f7ded8;box-shadow:4px 4px 0 #542f35;color:#4e252b}.critical-status h3{margin:5px 0 14px}.critical-status>div{display:grid;grid-template-columns:auto 1fr auto 1fr;align-items:center;gap:7px 10px}.critical-status>div b{font:800 24px monospace;color:#9d2939}.critical-status>div span{font-size:12px;font-weight:700}.critical-status p{margin:12px 0 0;font-size:13px}
+.epic-eggs{display:flex;align-items:center;gap:18px;margin:20px 0;padding:18px;border-color:#bd6297;background:linear-gradient(135deg,#f8dfef,#f3e9c2)}.epic-eggs>div:nth-child(2){flex:1}.epic-eggs h2,.epic-eggs p{margin:3px 0}.epic-egg,.hatching-egg{position:relative;width:64px;height:78px;border:4px solid #693b63;border-radius:50% 50% 45% 45%;background:repeating-linear-gradient(135deg,#f9e9a6 0 9px,#ef93c3 9px 18px);box-shadow:inset 5px 0 #fff8,5px 5px 0 #7e536f}.epic-egg i,.hatching-egg i{position:absolute;inset:23px 13px auto;height:5px;background:#733e65;transform:rotate(-14deg);box-shadow:9px 8px 0 -1px #733e65,-8px 14px 0 -1px #733e65}
+.recovery-card{min-width:min(520px,90vw);border-color:#744957;background:linear-gradient(#eee9d1,#dacbb1)}.recovery-card>.sprite{width:120px;height:120px}.recovery-stones{display:flex;justify-content:center;gap:16px;margin:20px 0 24px}.recovery-stone{display:grid;place-items:center;width:47px;height:47px;border:3px solid #392f36;background:#8a7370;color:#c7b5a6;clip-path:polygon(18% 5%,82% 5%,98% 35%,87% 88%,50% 100%,10% 86%,2% 38%);filter:drop-shadow(3px 4px 0 #2e2527);font-size:20px;text-shadow:1px 1px #fff5}.recovery-stone.spent{filter:grayscale(1) brightness(.5);opacity:.35}.recovery-stone.extinguish{animation:stone-extinguish 1.6s .8s forwards}.recovery-fx .account-fx-card{animation:recovery-enter .45s ease-out}
+.hatch-card{min-width:min(440px,90vw);overflow:hidden}.hatching-egg{margin:25px auto;transform-origin:50% 100%;animation:egg-wobble 1.5s ease-in-out forwards,egg-open .45s 1.55s forwards}.hatch-reveal{opacity:0;transform:scale(.45);animation:hatch-reveal .75s 1.75s forwards}.hatch-reveal .sprite{display:block;width:150px;height:150px;margin:auto;filter:drop-shadow(0 0 18px #ef89c4)}.hatch-reveal strong{display:block;font-size:24px}.hatch-reveal p{margin:5px}.hatch-fx .account-fx-card:after{content:'✦  ✧  ✦';position:absolute;color:#d765aa;font-size:25px;opacity:0;animation:hatch-spark 1s 1.8s forwards}
+@keyframes recovery-enter{from{transform:translateY(25px) scale(.94);opacity:0}}
+@keyframes stone-extinguish{0%,35%{filter:drop-shadow(0 0 14px #f1bd57);background:#b59055;color:#ffe6a0;opacity:1;transform:scale(1.14)}100%{filter:grayscale(1) brightness(.35);opacity:.28;transform:scale(.88)}}
+@keyframes egg-wobble{0%,100%{transform:rotate(0)}20%{transform:rotate(-11deg)}40%{transform:rotate(10deg)}60%{transform:rotate(-8deg)}80%{transform:rotate(7deg)}}
+@keyframes egg-open{to{transform:scale(1.35);opacity:0;filter:brightness(2.5)}}
+@keyframes hatch-reveal{to{opacity:1;transform:scale(1)}}
+@keyframes hatch-spark{0%{opacity:0;transform:scale(.3)}45%{opacity:1;transform:scale(2)}100%{opacity:0;transform:scale(2.8)}}
+@media(max-width:560px){.recovery-stones{gap:7px}.recovery-stone{width:38px;height:38px}.epic-eggs{align-items:flex-start;flex-wrap:wrap}.epic-eggs .btn{width:100%}.critical-status>div{grid-template-columns:auto 1fr}.critical-status>div b:nth-of-type(2){grid-column:1}.critical-status>div span:nth-of-type(2){grid-column:2}}
+@media(prefers-reduced-motion:reduce){.recovery-stone.extinguish,.hatching-egg,.hatch-reveal,.hatch-fx .account-fx-card:after{animation-duration:.01ms;animation-delay:0s}}
+

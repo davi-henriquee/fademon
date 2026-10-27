@@ -12,12 +12,65 @@ for(const [kind,name,values,prices,offset,slug] of [['potion','Poção',[50,125,
 items.push({id:'restore',kind:'restore',value:.3,name:'Restauração',price:1000,image:'assets/items/21-Restauracao.png',desc:'Revive com 30% do HP e recupera 1 uso de cada movimento. Uma por equipe por intervalo.'});
 const leagues=[['Bronze',20,1,10,'07-Bronze'],['Prata',40,11,25,'06-Prata'],['Ouro',80,26,40,'05-Ouro'],['Platina',160,41,55,'04-Platina'],['Diamante',320,56,70,'03-Diamante'],['Mestre',640,71,85,'02-Mestre'],['Lendário',1500,86,100,'01-Lendario']].map(([name,fee,min,max,img])=>({name,fee,min,max,image:`assets/leagues/${img}.png`}));
 const phases=['1ª Fase','2ª Fase','Semifinal','Final'];
+const recoverySaves=5,recoveryDays=10,datePattern=/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
 function monthKey(now=Date.now()){const d=new Date(now);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
+function addDays(date,amount){const d=new Date(date+'T12:00:00');d.setDate(d.getDate()+amount);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function isPerfect(day){return !!day?.star&&['devotional','study','sleep','water','diet','workout'].every(key=>day.tasks?.[key]);}
+function migrateRecovery(s,date=E.today()){
+ const year=Number(date.slice(0,4));
+ if(!s.recovery||typeof s.recovery!=='object'||Array.isArray(s.recovery))s.recovery={version:1,year,remaining:recoverySaves,eggs:0,critical:null};
+ const r=s.recovery;r.version=1;r.year=Number.isInteger(r.year)?r.year:year;r.remaining=Number.isSafeInteger(r.remaining)?Math.max(0,Math.min(recoverySaves,r.remaining)):recoverySaves;r.eggs=Number.isSafeInteger(r.eggs)&&r.eggs>=0?r.eggs:0;r.critical??=null;
+ return r;
+}
+function recoveryProgress(s,date=E.today()){
+ const r=migrateRecovery(s,date),c=r.critical;if(!c)return null;
+ let clean=0,perfect=0;
+ for(let i=1;i<=recoveryDays;i++){const key=addDays(c.startedDate,i),day=s.calendar?.[key];if(day?.star)clean++;if(isPerfect(day))perfect++;}
+ const elapsed=Math.max(0,Math.min(recoveryDays,Math.floor((new Date(date+'T12:00:00')-new Date(c.startedDate+'T12:00:00'))/86400000)));
+ return {...c,clean,perfect,elapsed,daysLeft:Math.max(0,recoveryDays-elapsed)};
+}
+function detachFromActivities(s,m){onRemove(s,m);s.team=s.team.filter(id=>id!==m.uid);if(!s.boxes.includes(m.uid)){let slot=s.boxes.indexOf(null);if(slot<0&&s.boxes.length<506){slot=s.boxes.length;s.boxes.push(null);}if(slot>=0)s.boxes[slot]=m.uid;}}
+function rollRecoveryYear(s,date=E.today()){
+ const r=migrateRecovery(s,date),year=Number(date.slice(0,4));let changed=false;
+ while(r.year<year){r.eggs+=r.remaining;r.year++;r.remaining=recoverySaves;changed=true;}
+ return changed;
+}
+function refreshRecovery(s,date=E.today()){
+ let changed=rollRecoveryYear(s,date);const r=s.recovery,c=r.critical;if(!c)return changed;
+ const m=find(s,c.uid);if(!m){r.critical=null;return true;}
+ detachFromActivities(s,m);const p=recoveryProgress(s,date);
+ if(date>=c.endsDate&&p.clean===recoveryDays&&p.perfect>=5){r.critical=null;r.notice={type:'recovered',species:m.species,name:E.byId[m.species].name};return true;}
+ if(date>addDays(c.endsDate,1)){const removed=E.removeOwned(s,m.uid);r.critical=null;if(removed)r.notice={type:'lost',species:removed.species,name:E.byId[removed.species].name};return true;}
+ return changed;
+}
+function recordFall(s,date,id){
+ if(s.battle||!E.editableDate(date)||s.calendar[date]?.fall)return null;
+ rollRecoveryYear(s,date);const r=s.recovery,day=s.calendar[date]??={tasks:{},claimed:[],star:false},before={xp:s.xp,coins:s.coins};
+ if(r.critical&&date<=r.critical.startedDate)return null;
+ if(day.star)E.task(s,date,'star',false);day.star=false;
+ if(r.critical){const critical=find(s,r.critical.uid);if(!critical)return null;day.fall={serial:critical.serial,name:E.byId[critical.species].name,outcome:'critical-lost'};const removed=E.removeOwned(s,critical.uid);r.critical=null;return removed&&{kind:'critical-lost',mon:removed,remaining:r.remaining,deltaXP:s.xp-before.xp,deltaCoins:s.coins-before.coins};}
+ const target=E.strongest(s);if(!target||target.uid!==id)return null;
+ if(r.remaining>0){const beforeRemaining=r.remaining;r.remaining--;r.critical={uid:target.uid,serial:target.serial,species:target.species,name:E.byId[target.species].name,startedDate:date,endsDate:addDays(date,recoveryDays)};day.fall={serial:target.serial,name:E.byId[target.species].name,outcome:'critical'};detachFromActivities(s,target);return {kind:'critical',mon:target,beforeRemaining,remaining:r.remaining,deltaXP:s.xp-before.xp,deltaCoins:s.coins-before.coins};}
+ day.fall={serial:target.serial,name:E.byId[target.species].name,outcome:'lost'};const removed=E.removeOwned(s,target.uid);return removed&&{kind:'lost',mon:removed,remaining:0,deltaXP:s.xp-before.xp,deltaCoins:s.coins-before.coins};
+}
+function hatchEpicEgg(s){
+ const r=migrateRecovery(s);if(s.battle||r.eggs<1)return null;
+ const pool=E.D.mons.filter(m=>m.rarity==='Épico'&&m.stage===0),species=E.pick(pool);if(!species)return null;
+ const mon=E.createMon(species.id,1);if(!E.addOwned(s,mon,'hatch'))return null;r.eggs--;return mon;
+}
 function migrateAdventure(s){
  migrateBossTeams(s);
  E.prepareHistory(s);
+ normalizeExpeditions(s);
  s.bossMoves??={};
  const battle=s.battle,boss=E.D.bosses[battle?.bossIndex];if(boss&&['boss','rematch'].includes(battle.mode)&&!s.bossMoves[battle.bossIndex]&&battle.enemy.length===boss.team.length&&battle.enemy.every((m,i)=>m.species===boss.team[i]))s.bossMoves[battle.bossIndex]=battle.enemy.map(m=>({species:m.species,moves:[...m.moves]}));
+ if(s.enemyMoveRevision!==2){
+  // Preserve a fight already in progress, but rebuild every future opponent
+  // with the level brackets introduced in enemy move revision 2.
+  s.bossMoves={};
+  for(const m of s.tournament?.opponents?.flat()||[])m.moves=E.byId[m.species].rarity==='Lendário'?E.moves.filter(a=>a.type===E.byId[m.species].type).map(a=>a.id):E.enemyMoves(E.byId[m.species].type,m.level);
+  s.enemyMoveRevision=2;
+ }
  s.welcomeSeen??=true;s.items??={};s.league??=0;s.suburb??={date:null,attempts:0,lost:false};s.lastTournamentMonth??=null;
  for(const m of s.owned){m.totalXP??=E.lifetimeXP(m);if(E.byId[m.species].rarity==='Lendário'){m.level=100;m.xp=0;}}
  if(s.battle)for(const m of [...s.battle.player,...s.battle.enemy])if(E.byId[m.species].rarity==='Lendário')m.level=100;
@@ -27,9 +80,10 @@ function migrateAdventure(s){
  s.leagueChampions??=[];
  for(let i=0;i<Math.min(reached,7);i++)if(!s.leagueChampions.includes(i))s.leagueChampions.push(i);
  if(s.tournament?.status==='champion'&&!s.leagueChampions.includes(s.tournament.league))s.leagueChampions.push(s.tournament.league);
+ migrateRecovery(s);refreshRecovery(s);
 }
 function refreshActivities(s,now=Date.now()){
- let changed=storeUnavailable(s,now);
+ let changed=refreshRecovery(s,E.today());changed=storeUnavailable(s,now)||changed;
  const t=s.tournament;if(t?.status==='active'&&t.month!==monthKey(now)){
   t.status='expired';s.league=Math.max(0,t.league-1);t.resultText='Prazo encerrado na virada do mês. Liga rebaixada (mínimo Bronze).';
   if(s.battle?.mode==='tournament'){s.battle.done=true;s.battle.result='loss';s.battle.settled=true;s.battle.rewardText=t.resultText;}
@@ -61,28 +115,52 @@ function storeUnavailable(s,now=Date.now()){
 }
 function availability(s,id,now=Date.now()){
  const reason=lockReason(s,id,'',now);if(!reason)return null;
+ if(reason==='Estado Crítico'){const p=recoveryProgress(s);return {label:`Estado Crítico · ${p.clean}/10 dias limpos · ${p.perfect}/5 dias perfeitos`,until:null};}
  if(reason==='Inscrito no torneio')return {label:'Inscrito em torneio',until:null};
- const until=reason==='Em expedição'?s.expedition.ends:find(s,id).lockedUntil;
+ const until=reason==='Em expedição'?expeditionForMember(s,id)?.ends:find(s,id).lockedUntil;
  const minutes=Math.ceil(Math.max(0,until-now)/60000);
  return {until,label:reason==='Em expedição'&&minutes===0?'Expedição concluída · aguardando resgate':`${reason} · ${Math.floor(minutes/60)}h ${minutes%60}min restantes`};
 }
 function lockReason(s,id,context='',now=Date.now()){
  const m=find(s,id);if(!m)return 'Mon não encontrado';
+ if(s.recovery?.critical?.uid===id)return 'Estado Crítico';
  if(m.lockedUntil>now)return 'Recuperação do Subúrbio';
- if(s.expedition?.members.some(x=>x.uid===id))return 'Em expedição';
+ if(expeditionForMember(s,id))return 'Em expedição';
  if(s.tournament?.status==='active'&&s.tournament.members.some(x=>x.uid===id)&&!['tournament','evolve','equipment'].includes(context))return 'Inscrito no torneio';
  return '';
 }
 function readyTeam(s){return s.team.map(id=>find(s,id)).filter(m=>m&&!lockReason(s,m.uid));}
 function validMembers(s,ids,min,max){return Array.isArray(ids)&&ids.length>=min&&ids.length<=max&&new Set(ids).size===ids.length&&ids.every(id=>find(s,id)&&!lockReason(s,id));}
-function startExpedition(s,ids,kind,now=Date.now()){
- if(s.battle||s.expedition||!['collect','inform','scout'].includes(kind)||!validMembers(s,ids,1,3))return false;
- s.expedition={kind,started:now,ends:now+48*hours,members:ids.map(id=>({uid:id,level:find(s,id).level}))};storeUnavailable(s,now);return true;
+function expeditionSlotPrice(slot){return Number.isSafeInteger(slot)&&slot>=2&&slot<=10?50*2**(slot-2):0;}
+function expeditionCost(count){if(!Number.isSafeInteger(count)||count<1||count>10)return null;let total=0;for(let slot=2;slot<=count;slot++)total+=expeditionSlotPrice(slot);return total;}
+function expeditionForMember(s,id){return (s.expeditions||[]).find(x=>x.members.some(m=>m.uid===id))||(s.expedition?.members.some(m=>m.uid===id)?s.expedition:null);}
+function normalizeExpeditions(s){
+ s.expeditions=Array.isArray(s.expeditions)?s.expeditions:[];
+ if(s.expedition){
+  const legacy=s.expedition,used=new Set(s.expeditions.map(x=>x.slot)),members=Array.isArray(legacy.members)?legacy.members:[];
+  for(let i=0;i<members.length;i+=3){let slot=1;while(used.has(slot)&&slot<=10)slot++;if(slot>10)break;used.add(slot);s.expeditions.push({slot,kind:legacy.kind,fee:0,started:Number.isFinite(legacy.started)?legacy.started:legacy.ends-48*hours,ends:legacy.ends,members:members.slice(i,i+3)});}
+  delete s.expedition;
+ }
+ const previouslyUsed=s.expeditions.map(x=>x.slot);if(Number.isSafeInteger(s.lastExpedition?.slot))previouslyUsed.push(s.lastExpedition.slot);
+ const saved=Array.isArray(s.expeditionSlots)?s.expeditionSlots:Number.isSafeInteger(s.expeditionSlots)?Array.from({length:s.expeditionSlots},(_,i)=>i+1):[];
+ s.expeditionSlots=[...new Set([1,...saved,...previouslyUsed].filter(slot=>Number.isSafeInteger(slot)&&slot>=1&&slot<=10))].sort((a,b)=>a-b);
+ for(const x of s.expeditions){if(x.fee===undefined)x.fee=0;if(!Number.isFinite(x.started)&&Number.isFinite(x.ends))x.started=x.ends-48*hours;}
+ s.expeditions.sort((a,b)=>a.slot-b.slot);
 }
-function claimExpedition(s,now=Date.now()){
- const x=s.expedition;if(s.battle||!x||now<x.ends)return null;const result={coins:0,awards:[]};
+function buyExpeditionSlot(s,slot){
+ normalizeExpeditions(s);const price=expeditionSlotPrice(slot);
+ if(s.battle||!Number.isSafeInteger(slot)||slot<2||slot>10||s.expeditionSlots.includes(slot)||s.coins<price)return false;
+ s.coins-=price;s.expeditionSlots.push(slot);s.expeditionSlots.sort((a,b)=>a-b);return true;
+}
+function startExpedition(s,ids,kind,now=Date.now(),slot=1){
+ normalizeExpeditions(s);
+ if(s.battle||!Number.isSafeInteger(slot)||slot<1||slot>10||!s.expeditionSlots.includes(slot)||s.expeditions.some(x=>x.slot===slot)||!['collect','inform','scout'].includes(kind)||!validMembers(s,ids,1,3))return false;
+ s.expeditions.push({slot,kind,fee:0,started:now,ends:now+48*hours,members:ids.map(id=>({uid:id,level:find(s,id).level}))});s.expeditions.sort((a,b)=>a.slot-b.slot);storeUnavailable(s,now);return true;
+}
+function claimExpedition(s,now=Date.now(),slot=1){
+ normalizeExpeditions(s);const index=s.expeditions.findIndex(x=>x.slot===slot),x=s.expeditions[index];if(s.battle||!x||now<x.ends)return null;const result={slot,coins:0,awards:[]};
  // Remove the pending mission before payout: reloads cannot claim it again.
- s.expedition=null;
+ s.expeditions.splice(index,1);
  for(const member of x.members){const m=find(s,member.uid);if(!m)continue;E.ensureMonHistory(m).expeditions++;const half=Math.floor(member.level/2);
   result.coins+=x.kind==='collect'?member.level:x.kind==='scout'?half:0;
   const xp=x.kind==='inform'?member.level:x.kind==='scout'?half:0;if(xp)E.grantXP(m,xp);result.awards.push({uid:m.uid,xp});
@@ -166,12 +244,13 @@ function useTournamentItem(s,uid,id){
 }
 function abandonTournament(s){if(s.battle||s.tournament?.status!=='active')return false;const t=s.tournament;t.status='lost';if(t.phase===0)s.league=Math.max(0,t.league-1);t.resultText='Torneio encerrado por desistência. Inscrição mensal consumida.';return true;}
 function onRemove(s,m){
- if(s.expedition){s.expedition.members=s.expedition.members.filter(x=>x.uid!==m.uid);if(!s.expedition.members.length)s.expedition=null;}
+ normalizeExpeditions(s);for(const x of s.expeditions)x.members=x.members.filter(member=>member.uid!==m.uid);s.expeditions=s.expeditions.filter(x=>x.members.length);
  const t=s.tournament;if(t?.status==='active'){t.members=t.members.filter(x=>x.uid!==m.uid);if(!t.members.length){t.status='lost';if(t.phase===0)s.league=Math.max(0,t.league-1);t.resultText='Torneio encerrado: equipe removida.';}}
 }
 function validateAdventure(s){
  if(s.leagueChampions!==undefined&&(!Array.isArray(s.leagueChampions)||new Set(s.leagueChampions).size!==s.leagueChampions.length||s.leagueChampions.some(i=>!Number.isInteger(i)||i<0||i>=leagues.length)))throw Error('Histórico de ligas inválido');
- for(const m of s.owned)if(m.history!==undefined){const h=m.history;if(!h||typeof h!=='object'||Array.isArray(h)||['victories','knockouts','expeditions'].some(k=>!Number.isSafeInteger(h[k])||h[k]<0)||typeof h.partial!=='boolean'||![h.trackedFrom,h.obtainedOn,h.capturedOn].every(d=>d===null||typeof d==='string'&&/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(d))||!['unknown','obtained','purchase','capture'].includes(h.origin))throw Error('Histórico inválido');}
+ for(const m of s.owned)if(m.history!==undefined){const h=m.history;if(!h||typeof h!=='object'||Array.isArray(h)||['victories','knockouts','expeditions'].some(k=>!Number.isSafeInteger(h[k])||h[k]<0)||typeof h.partial!=='boolean'||![h.trackedFrom,h.obtainedOn,h.capturedOn].every(d=>d===null||typeof d==='string'&&/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(d))||!['unknown','obtained','purchase','capture','hatch'].includes(h.origin))throw Error('Histórico inválido');}
+ if(s.recovery!==undefined){const r=s.recovery;if(!r||typeof r!=='object'||Array.isArray(r)||r.version!==1||!Number.isInteger(r.year)||!Number.isSafeInteger(r.remaining)||r.remaining<0||r.remaining>recoverySaves||!Number.isSafeInteger(r.eggs)||r.eggs<0)throw Error('Recuperação anual inválida');if(r.critical){const c=r.critical;if(!find(s,c.uid)||typeof c.uid!=='string'||!datePattern.test(c.startedDate)||!datePattern.test(c.endsDate)||c.endsDate!==addDays(c.startedDate,recoveryDays))throw Error('Estado Crítico inválido');}}
  if(s.battle?.historyRevision!==undefined){const b=s.battle;if(b.historyRevision!==1||typeof b.historyVictoryApplied!=='boolean')throw Error('Histórico de batalha inválido');for(const map of [b.historyKOs,b.historyAppliedKOs])if(!map||typeof map!=='object'||Array.isArray(map)||Object.entries(map).some(([id,n])=>!b.player.some(m=>m.uid===id)||!Number.isSafeInteger(n)||n<0||n>b.enemy.length))throw Error('Nocautes inválidos');for(const [id,n] of Object.entries(b.historyAppliedKOs))if(n>(b.historyKOs[id]||0))throw Error('Nocautes já contabilizados inválidos');}
 
  if(s.bossMoves!==undefined){
@@ -181,13 +260,15 @@ function validateAdventure(s){
  if(s.items&&(typeof s.items!=='object'||Array.isArray(s.items)||Object.entries(s.items).some(([k,v])=>!items.some(x=>x.id===k)||!Number.isSafeInteger(v)||v<0)))throw Error('Inventário inválido');
  if(s.league!==undefined&&(!Number.isInteger(s.league)||s.league<0||s.league>6))throw Error('Liga inválida');
  for(const m of s.owned){if(m.totalXP!==undefined&&(!Number.isSafeInteger(m.totalXP)||m.totalXP<0))throw Error('XP vitalício inválido');if(m.stone&&!items.some(x=>x.id===m.stone&&x.kind==='stone'))throw Error('Pedra inválida');if(m.lockedUntil!==undefined&&(!Number.isFinite(m.lockedUntil)||m.lockedUntil<0))throw Error('Bloqueio inválido');}
- if(s.expedition){const x=s.expedition;if(!['collect','inform','scout'].includes(x.kind)||!Number.isFinite(x.ends)||!Array.isArray(x.members)||x.members.length>3||x.members.some(m=>!find(s,m.uid)||!Number.isInteger(m.level)||m.level<1||m.level>100)||new Set(x.members.map(m=>m.uid)).size!==x.members.length)throw Error('Expedição inválida');}
+ if(s.expedition){const x=s.expedition;if(!['collect','inform','scout'].includes(x.kind)||!Number.isFinite(x.ends)||!Array.isArray(x.members)||x.members.length<1||x.members.length>10||x.members.some(m=>!find(s,m.uid)||!Number.isInteger(m.level)||m.level<1||m.level>100)||new Set(x.members.map(m=>m.uid)).size!==x.members.length||x.fee!==undefined&&(!Number.isSafeInteger(x.fee)||x.fee<0||x.fee!==expeditionCost(x.members.length)))throw Error('Expedição legada inválida');}
+ if(s.expeditionSlots!==undefined&&(!Array.isArray(s.expeditionSlots)||!s.expeditionSlots.includes(1)||new Set(s.expeditionSlots).size!==s.expeditionSlots.length||s.expeditionSlots.some(slot=>!Number.isSafeInteger(slot)||slot<1||slot>10)))throw Error('Slots de expedição inválidos');
+ if(s.expeditions!==undefined){if(!Array.isArray(s.expeditions)||s.expeditions.length>10)throw Error('Expedições inválidas');const slots=new Set,participants=new Set;for(const x of s.expeditions){if(!x||!Number.isSafeInteger(x.slot)||x.slot<1||x.slot>10||slots.has(x.slot)||s.expeditionSlots!==undefined&&!s.expeditionSlots.includes(x.slot)||!['collect','inform','scout'].includes(x.kind)||!Number.isFinite(x.started)||!Number.isFinite(x.ends)||x.ends<=x.started||!Array.isArray(x.members)||x.members.length<1||x.members.length>3||!Number.isSafeInteger(x.fee)||![0,expeditionSlotPrice(x.slot)].includes(x.fee))throw Error('Expedição paralela inválida');slots.add(x.slot);for(const m of x.members){if(!find(s,m.uid)||participants.has(m.uid)||!Number.isInteger(m.level)||m.level<1||m.level>100)throw Error('Participante de expedição inválido');participants.add(m.uid);}}}
  if(s.suburb&&(!Number.isInteger(s.suburb.attempts)||s.suburb.attempts<0||s.suburb.attempts>2))throw Error('Subúrbio inválido');
  if(s.tournament){const t=s.tournament;if(!['active','lost','expired','champion'].includes(t.status)||!leagues[t.league]||!Number.isInteger(t.phase)||t.phase<0||t.phase>4||!Array.isArray(t.members)||t.members.length>3||!Array.isArray(t.opponents)||t.opponents.length!==4||!Array.isArray(t.etherUsed)||typeof t.month!=='string'||t.fee!==leagues[t.league].fee)throw Error('Torneio inválido');
   for(const m of [...t.members,...t.opponents.flat()])if(!E.byId[m.species]||!Array.isArray(m.moves)||m.moves.some(id=>!E.byMove[id])||!Number.isInteger(m.level)||m.level<1||m.level>100)throw Error('Equipe de torneio inválida');
   for(const m of t.members)if(!Number.isFinite(m.hp)||m.hp<0||!m.pp||m.moves.some(id=>!Number.isInteger(m.pp[id])||m.pp[id]<0||m.pp[id]>(id==='cloud'&&s.cloudRevision!==1?10:E.byMove[id].pp))||t.status==='active'&&!find(s,m.uid))throw Error('Estado de torneio inválido');
  }
 }
-Object.assign(E,{items,leagues,phases,monthKey,migrateBossTeams,storeUnavailable,availability,migrateAdventure,refreshActivities,lockReason,readyTeam,startExpedition,claimExpedition,enemyEquipment,enemyPool,randomEnemy,startSuburb,bossOpponents,startRematch,enterTournament,syncTournamentMember,startTournamentPhase,settleAdventure,buyItem,equipStone,useTournamentItem,abandonTournament,onRemove,validateAdventure});
+Object.assign(E,{items,leagues,phases,monthKey,migrateBossTeams,storeUnavailable,availability,migrateAdventure,refreshActivities,lockReason,readyTeam,expeditionSlotPrice,expeditionCost,buyExpeditionSlot,startExpedition,claimExpedition,enemyEquipment,enemyPool,randomEnemy,startSuburb,bossOpponents,startRematch,enterTournament,syncTournamentMember,startTournamentPhase,settleAdventure,buyItem,equipStone,useTournamentItem,abandonTournament,onRemove,validateAdventure,migrateRecovery,recoveryProgress,refreshRecovery,recordFall,hatchEpicEgg,recoverySaves});
 const originalNewSave=E.newSave;E.newSave=()=>{const s=originalNewSave();migrateAdventure(s);return s;};
 })(window.FMX);
