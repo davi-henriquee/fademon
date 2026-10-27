@@ -39,7 +39,7 @@ function refreshRecovery(s,date=E.today()){
  let changed=rollRecoveryYear(s,date);const r=s.recovery,c=r.critical;if(!c)return changed;
  const m=find(s,c.uid);if(!m){r.critical=null;return true;}
  detachFromActivities(s,m);const p=recoveryProgress(s,date);
- if(date>=c.endsDate&&p.clean===recoveryDays&&p.perfect>=5){r.critical=null;r.notice={type:'recovered',species:m.species,name:E.byId[m.species].name};return true;}
+ if(date>=c.endsDate&&p.clean===recoveryDays&&p.perfect>=5){r.critical=null;if(s.team.length<6){s.boxes=s.boxes.map(id=>id===m.uid?null:id);if(!s.team.includes(m.uid))s.team.push(m.uid);}r.notice={type:'recovered',uid:m.uid,species:m.species,name:E.byId[m.species].name};return true;}
  if(date>addDays(c.endsDate,1)){const removed=E.removeOwned(s,m.uid);r.critical=null;if(removed)r.notice={type:'lost',species:removed.species,name:E.byId[removed.species].name};return true;}
  return changed;
 }
