@@ -12,14 +12,15 @@ for(const [kind,name,values,prices,offset,slug] of [['potion','Poção',[50,125,
 items.push({id:'restore',kind:'restore',value:.3,name:'Restauração',price:1000,image:'assets/items/21-Restauracao.png',desc:'Revive com 30% do HP e recupera 1 uso de cada movimento. Uma por equipe por intervalo.'});
 const leagues=[['Bronze',20,1,10,'07-Bronze'],['Prata',40,11,25,'06-Prata'],['Ouro',80,26,40,'05-Ouro'],['Platina',160,41,55,'04-Platina'],['Diamante',320,56,70,'03-Diamante'],['Mestre',640,71,85,'02-Mestre'],['Lendário',1500,86,100,'01-Lendario']].map(([name,fee,min,max,img])=>({name,fee,min,max,image:`assets/leagues/${img}.png`}));
 const phases=['1ª Fase','2ª Fase','Semifinal','Final'];
-const recoverySaves=5,recoveryDays=10,datePattern=/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
+const recoverySaves=5,recoveryDays=10,memorialDays=100,datePattern=/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
 function monthKey(now=Date.now()){const d=new Date(now);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
 function addDays(date,amount){const d=new Date(date+'T12:00:00');d.setDate(d.getDate()+amount);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function isPerfect(day){return !!day?.star&&['devotional','study','sleep','water','diet','workout'].every(key=>day.tasks?.[key]);}
 function migrateRecovery(s,date=E.today()){
  const year=Number(date.slice(0,4));
- if(!s.recovery||typeof s.recovery!=='object'||Array.isArray(s.recovery))s.recovery={version:1,year,remaining:recoverySaves,eggs:0,critical:null};
+ if(!s.recovery||typeof s.recovery!=='object'||Array.isArray(s.recovery))s.recovery={version:1,year,remaining:recoverySaves,eggs:0,critical:null,memorial:[],memorialRestoredYears:[],lastMemorialRestoredOn:null};
  const r=s.recovery;r.version=1;r.year=Number.isInteger(r.year)?r.year:year;r.remaining=Number.isSafeInteger(r.remaining)?Math.max(0,Math.min(recoverySaves,r.remaining)):recoverySaves;r.eggs=Number.isSafeInteger(r.eggs)&&r.eggs>=0?r.eggs:0;r.critical??=null;
+ r.memorial??=[];r.memorialRestoredYears??=[];r.lastMemorialRestoredOn??=null;
  return r;
 }
 function recoveryProgress(s,date=E.today()){
@@ -30,6 +31,21 @@ function recoveryProgress(s,date=E.today()){
  return {...c,clean,perfect,elapsed,daysLeft:Math.max(0,recoveryDays-elapsed)};
 }
 function detachFromActivities(s,m){onRemove(s,m);s.team=s.team.filter(id=>id!==m.uid);if(!s.boxes.includes(m.uid)){let slot=s.boxes.indexOf(null);if(slot<0&&s.boxes.length<506){slot=s.boxes.length;s.boxes.push(null);}if(slot>=0)s.boxes[slot]=m.uid;}}
+function memorialize(s,m,date,reason){const r=migrateRecovery(s,date);if(!m||r.memorial.some(entry=>entry.mon?.uid===m.uid))return false;r.memorial.push({mon:E.clone(m),lostOn:date,reason});return true;}
+function memorialProgress(s,date=E.today()){
+ const r=migrateRecovery(s,date),year=Number(date.slice(0,4)),today=s.calendar?.[date];
+ if(today?.fall)return {clean:0,goal:memorialDays,eligible:false,usedThisYear:r.memorialRestoredYears.includes(year),year};
+ let cursor=today?.star?date:addDays(date,-1),clean=0;
+ while(clean<memorialDays&&(!r.lastMemorialRestoredOn||cursor>r.lastMemorialRestoredOn)){const day=s.calendar?.[cursor];if(!day?.star||day.fall)break;clean++;cursor=addDays(cursor,-1);}
+ const usedThisYear=r.memorialRestoredYears.includes(year);return {clean,goal:memorialDays,eligible:clean>=memorialDays&&!usedThisYear&&r.memorial.length>0,usedThisYear,year};
+}
+function restoreMemorialMon(s,uid,date=E.today()){
+ const r=migrateRecovery(s,date),progress=memorialProgress(s,date),index=r.memorial.findIndex(entry=>entry.mon?.uid===uid),slot=s.boxes.indexOf(null);
+ if(s.battle||!progress.eligible||index<0||s.owned.length>=506||s.team.length>=6&&slot<0)return null;
+ const entry=r.memorial[index],m=E.clone(entry.mon);if(s.owned.some(x=>x.uid===m.uid))return null;
+ r.memorial.splice(index,1);s.owned.push(m);if(s.team.length<6)s.team.push(m.uid);else s.boxes[slot]=m.uid;if(!s.discovered.includes(m.species))s.discovered.push(m.species);
+ r.memorialRestoredYears.push(progress.year);r.lastMemorialRestoredOn=date;r.notice={type:'resurrected',uid:m.uid,species:m.species,name:E.byId[m.species].name};return m;
+}
 function rollRecoveryYear(s,date=E.today()){
  const r=migrateRecovery(s,date),year=Number(date.slice(0,4));let changed=false;
  while(r.year<year){r.eggs+=r.remaining;r.year++;r.remaining=recoverySaves;changed=true;}
@@ -40,7 +56,7 @@ function refreshRecovery(s,date=E.today()){
  const m=find(s,c.uid);if(!m){r.critical=null;return true;}
  detachFromActivities(s,m);const p=recoveryProgress(s,date);
  if(date>=c.endsDate&&p.clean===recoveryDays&&p.perfect>=5){r.critical=null;if(s.team.length<6){s.boxes=s.boxes.map(id=>id===m.uid?null:id);if(!s.team.includes(m.uid))s.team.push(m.uid);}r.notice={type:'recovered',uid:m.uid,species:m.species,name:E.byId[m.species].name};return true;}
- if(date>addDays(c.endsDate,1)){const removed=E.removeOwned(s,m.uid);r.critical=null;if(removed)r.notice={type:'lost',species:removed.species,name:E.byId[removed.species].name};return true;}
+ if(date>addDays(c.endsDate,1)){memorialize(s,m,date,'recovery-failed');const removed=E.removeOwned(s,m.uid);r.critical=null;if(removed)r.notice={type:'lost',species:removed.species,name:E.byId[removed.species].name};return true;}
  return changed;
 }
 function recordFall(s,date,id){
@@ -48,10 +64,10 @@ function recordFall(s,date,id){
  rollRecoveryYear(s,date);const r=s.recovery,day=s.calendar[date]??={tasks:{},claimed:[],star:false},before={xp:s.xp,coins:s.coins};
  if(r.critical&&date<=r.critical.startedDate)return null;
  if(day.star)E.task(s,date,'star',false);day.star=false;
- if(r.critical){const critical=find(s,r.critical.uid);if(!critical)return null;day.fall={serial:critical.serial,name:E.byId[critical.species].name,outcome:'critical-lost'};const removed=E.removeOwned(s,critical.uid);r.critical=null;return removed&&{kind:'critical-lost',mon:removed,remaining:r.remaining,deltaXP:s.xp-before.xp,deltaCoins:s.coins-before.coins};}
+ if(r.critical){const critical=find(s,r.critical.uid);if(!critical)return null;day.fall={serial:critical.serial,name:E.byId[critical.species].name,outcome:'critical-lost'};memorialize(s,critical,date,'critical-fall');const removed=E.removeOwned(s,critical.uid);r.critical=null;return removed&&{kind:'critical-lost',mon:removed,remaining:r.remaining,deltaXP:s.xp-before.xp,deltaCoins:s.coins-before.coins};}
  const target=E.strongest(s);if(!target||target.uid!==id)return null;
  if(r.remaining>0){const beforeRemaining=r.remaining;r.remaining--;r.critical={uid:target.uid,serial:target.serial,species:target.species,name:E.byId[target.species].name,startedDate:date,endsDate:addDays(date,recoveryDays)};day.fall={serial:target.serial,name:E.byId[target.species].name,outcome:'critical'};detachFromActivities(s,target);return {kind:'critical',mon:target,beforeRemaining,remaining:r.remaining,deltaXP:s.xp-before.xp,deltaCoins:s.coins-before.coins};}
- day.fall={serial:target.serial,name:E.byId[target.species].name,outcome:'lost'};const removed=E.removeOwned(s,target.uid);return removed&&{kind:'lost',mon:removed,remaining:0,deltaXP:s.xp-before.xp,deltaCoins:s.coins-before.coins};
+ day.fall={serial:target.serial,name:E.byId[target.species].name,outcome:'lost'};memorialize(s,target,date,'fall');const removed=E.removeOwned(s,target.uid);return removed&&{kind:'lost',mon:removed,remaining:0,deltaXP:s.xp-before.xp,deltaCoins:s.coins-before.coins};
 }
 function hatchEpicEgg(s){
  const r=migrateRecovery(s);if(s.battle||r.eggs<1)return null;
@@ -250,7 +266,7 @@ function onRemove(s,m){
 function validateAdventure(s){
  if(s.leagueChampions!==undefined&&(!Array.isArray(s.leagueChampions)||new Set(s.leagueChampions).size!==s.leagueChampions.length||s.leagueChampions.some(i=>!Number.isInteger(i)||i<0||i>=leagues.length)))throw Error('Histórico de ligas inválido');
  for(const m of s.owned)if(m.history!==undefined){const h=m.history;if(!h||typeof h!=='object'||Array.isArray(h)||['victories','knockouts','expeditions'].some(k=>!Number.isSafeInteger(h[k])||h[k]<0)||typeof h.partial!=='boolean'||![h.trackedFrom,h.obtainedOn,h.capturedOn].every(d=>d===null||typeof d==='string'&&/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(d))||!['unknown','obtained','purchase','capture','hatch'].includes(h.origin))throw Error('Histórico inválido');}
- if(s.recovery!==undefined){const r=s.recovery;if(!r||typeof r!=='object'||Array.isArray(r)||r.version!==1||!Number.isInteger(r.year)||!Number.isSafeInteger(r.remaining)||r.remaining<0||r.remaining>recoverySaves||!Number.isSafeInteger(r.eggs)||r.eggs<0)throw Error('Recuperação anual inválida');if(r.critical){const c=r.critical;if(!find(s,c.uid)||typeof c.uid!=='string'||!datePattern.test(c.startedDate)||!datePattern.test(c.endsDate)||c.endsDate!==addDays(c.startedDate,recoveryDays))throw Error('Estado Crítico inválido');}}
+ if(s.recovery!==undefined){const r=s.recovery;if(!r||typeof r!=='object'||Array.isArray(r)||r.version!==1||!Number.isInteger(r.year)||!Number.isSafeInteger(r.remaining)||r.remaining<0||r.remaining>recoverySaves||!Number.isSafeInteger(r.eggs)||r.eggs<0)throw Error('Recuperação anual inválida');if(r.critical){const c=r.critical;if(!find(s,c.uid)||typeof c.uid!=='string'||!datePattern.test(c.startedDate)||!datePattern.test(c.endsDate)||c.endsDate!==addDays(c.startedDate,recoveryDays))throw Error('Estado Crítico inválido');}if(r.memorial!==undefined){if(!Array.isArray(r.memorial))throw Error('Memorial inválido');const ids=new Set(s.owned.map(m=>m.uid));for(const entry of r.memorial){const m=entry?.mon;if(!entry||!datePattern.test(entry.lostOn)||!['fall','critical-fall','recovery-failed'].includes(entry.reason)||!m||typeof m.uid!=='string'||ids.has(m.uid)||!E.byId[m.species]||!Number.isInteger(m.level)||m.level<1||m.level>100||!Number.isInteger(m.xp)||m.xp<0||!Array.isArray(m.moves)||m.moves.length>E.moveSlots(m)||m.moves.some(id=>!E.byMove[id])||!Number.isInteger(m.pending)||m.pending<0)throw Error('Mon do Memorial inválido');ids.add(m.uid);}}if(r.memorialRestoredYears!==undefined&&(!Array.isArray(r.memorialRestoredYears)||new Set(r.memorialRestoredYears).size!==r.memorialRestoredYears.length||r.memorialRestoredYears.some(year=>!Number.isInteger(year)||year<2000||year>9999)))throw Error('Ressurreições anuais inválidas');if(r.lastMemorialRestoredOn!==undefined&&r.lastMemorialRestoredOn!==null&&!datePattern.test(r.lastMemorialRestoredOn))throw Error('Data de ressurreição inválida');}
  if(s.battle?.historyRevision!==undefined){const b=s.battle;if(b.historyRevision!==1||typeof b.historyVictoryApplied!=='boolean')throw Error('Histórico de batalha inválido');for(const map of [b.historyKOs,b.historyAppliedKOs])if(!map||typeof map!=='object'||Array.isArray(map)||Object.entries(map).some(([id,n])=>!b.player.some(m=>m.uid===id)||!Number.isSafeInteger(n)||n<0||n>b.enemy.length))throw Error('Nocautes inválidos');for(const [id,n] of Object.entries(b.historyAppliedKOs))if(n>(b.historyKOs[id]||0))throw Error('Nocautes já contabilizados inválidos');}
 
  if(s.bossMoves!==undefined){
@@ -269,6 +285,6 @@ function validateAdventure(s){
   for(const m of t.members)if(!Number.isFinite(m.hp)||m.hp<0||!m.pp||m.moves.some(id=>!Number.isInteger(m.pp[id])||m.pp[id]<0||m.pp[id]>(id==='cloud'&&s.cloudRevision!==1?10:E.byMove[id].pp))||t.status==='active'&&!find(s,m.uid))throw Error('Estado de torneio inválido');
  }
 }
-Object.assign(E,{items,leagues,phases,monthKey,migrateBossTeams,storeUnavailable,availability,migrateAdventure,refreshActivities,lockReason,readyTeam,expeditionSlotPrice,expeditionCost,buyExpeditionSlot,startExpedition,claimExpedition,enemyEquipment,enemyPool,randomEnemy,startSuburb,bossOpponents,startRematch,enterTournament,syncTournamentMember,startTournamentPhase,settleAdventure,buyItem,equipStone,useTournamentItem,abandonTournament,onRemove,validateAdventure,migrateRecovery,recoveryProgress,refreshRecovery,recordFall,hatchEpicEgg,recoverySaves});
+Object.assign(E,{items,leagues,phases,monthKey,migrateBossTeams,storeUnavailable,availability,migrateAdventure,refreshActivities,lockReason,readyTeam,expeditionSlotPrice,expeditionCost,buyExpeditionSlot,startExpedition,claimExpedition,enemyEquipment,enemyPool,randomEnemy,startSuburb,bossOpponents,startRematch,enterTournament,syncTournamentMember,startTournamentPhase,settleAdventure,buyItem,equipStone,useTournamentItem,abandonTournament,onRemove,validateAdventure,migrateRecovery,recoveryProgress,refreshRecovery,recordFall,hatchEpicEgg,recoverySaves,memorialDays,memorialProgress,restoreMemorialMon});
 const originalNewSave=E.newSave;E.newSave=()=>{const s=originalNewSave();migrateAdventure(s);return s;};
 })(window.FMX);
