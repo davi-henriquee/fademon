@@ -63,12 +63,12 @@ add('Escuridão','shadows','Sombras massivas','skill','Força troca adversária;
 add('Escuridão','night','Investida Noturna','attack','1,4× ataque; 85% de crítico.','damage',{power:1.4,crit:.85});
 add('Escuridão','darkclaw','Garra das trevas','attack','1,2× ataque; moeda: cara também causa sono por até 2 ações. Ao sair, imunidade a sono por 3 rodadas.','damage',{power:1.2,sleep:.5});
 add('Escuridão','spin','Ataque giratório','attack','1,9× ataque; 10% de crítico.','damage',{power:1.9,crit:.1});
-add('Dragão','hyper','Hiper-raio','skill','Cura todo o HP; descansa na próxima rodada. 1 uso.','heal',{percent:1,rest:true,pp:1});
-add('Dragão','gale','Vendaval de dragão','skill','Escolhe qual Mon adversário entra. 1 uso.','force',{choose:true,pp:1});
-add('Dragão','portal','Dragoportal','skill','Troca de Mon e cura os dois em 35% do HP máximo. 2 usos por batalha.','portal',{pp:2});
-add('Dragão','dragonclaw','Garra de dragão','attack','Causa dano igual a 50% do HP atual do alvo.','damage',{fraction:.5});
-add('Dragão','dive','Rasante estrondoso','attack','3× ataque; 50% de chance de sofrer metade do dano nominal.','damage',{power:3,recoil:true});
-add('Dragão','tail','Cauda aniquiladora','attack','2× ataque em toda a equipe adversária; descansa depois.','damage',{power:2,all:true,rest:true});
+add('Dragão','hyper','Hiper-raio','skill','Cura toda a vida; não age na próxima rodada. 1 uso por partida.','heal',{percent:1,rest:true,pp:1});
+add('Dragão','gale','Vendaval de dragão','skill','Escolhe qual Mon adversário entra. 1 uso por partida.','force',{choose:true,pp:1});
+add('Dragão','portal','Dragoportal','skill','Troca de Mon e cura este e o próximo em 35% da vida máxima. 2 usos.','portal',{pp:2});
+add('Dragão','dragonclaw','Garra de dragão','attack','Causa 50% da vida atual do adversário como dano. 4 usos.','damage',{fraction:.5,pp:4});
+add('Dragão','dive','Rasante estrondoso','attack','3× ataque; na coroa, sofre metade desse dano. 10 usos.','damage',{power:3,recoil:true,pp:10});
+add('Dragão','tail','Cauda aniquiladora','attack','2× ataque em todos os Mons adversários; descansa na próxima rodada. 10 usos.','damage',{power:2,all:true,rest:true,pp:10});
 add('Psíquico','mindcontrol','Controle mental','skill','Bloqueia uma habilidade adversária até o fim da batalha. 2 usos.','block',{targetKind:'skill',pp:2});
 add('Psíquico','psychicshadow','Sombra psíquica','skill','Copia um movimento adversário e seus usos restantes até o fim da batalha. Não copia outra Sombra nem recupera usos já gastos.','copy');
 add('Psíquico','confusion','Confusão cerebral','skill','Na próxima ação: coroa causa 10% do próprio HP máximo ao alvo em vez de agir; cara permite agir. Depois, imunidade à confusão por 3 rodadas.','confuse',{pp:5});
@@ -130,7 +130,7 @@ function wildEncounter(date=today()){
  const rarity=wildRarity(date),species=pick(D.mons.filter(m=>m.rarity===rarity&&(rarity==='Lendário'||m.stage===0)));
  return createMon(species.id,rarity==='Lendário'?1:1+Math.floor(Math.random()*5),true);
 }
-function newSave(){return {version:1,welcomeSeen:false,rulesV11:1,catalogRevision:D.catalogVersion||2,coins:500,xp:0,owned:[],team:[],boxes:Array(500).fill(null),discovered:[],calendar:{},career:D.bosses.map(()=>({wins:0,cleared:false})),lastCareer:null,lastWild:null,battle:null,settings:{sound:false},created:today()};}
+function newSave(){return {version:1,welcomeSeen:false,rulesV11:1,dragonMovesRevision:1,catalogRevision:D.catalogVersion||2,coins:500,xp:0,owned:[],team:[],boxes:Array(500).fill(null),discovered:[],calendar:{},career:D.bosses.map(()=>({wins:0,cleared:false})),lastCareer:null,lastWild:null,battle:null,settings:{sound:false},created:today()};}
 function addOwned(state,mon,origin='obtained'){let slot=state.boxes.indexOf(null);if(state.owned.length>=506||state.owned.some(m=>m.uid===mon.uid)||state.team.length>=6&&slot<0)return false;normalizeOwnership(state);mon.history??=newMonHistory(origin);mon.serial=state.nextSerial++;state.owned.push(mon);if(state.team.length<6)state.team.push(mon.uid);else state.boxes[slot]=mon.uid;if(!state.discovered.includes(mon.species))state.discovered.push(mon.species);return true;}
 function task(state,date,key,value){
  if(state.battle||!editableDate(date))return false;

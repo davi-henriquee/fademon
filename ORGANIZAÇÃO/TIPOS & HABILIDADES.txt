@@ -76,9 +76,9 @@ OBS8: Todo efeito de sono dura no máximo duas rodadas, com uma moeda antes de c
 	- Hiper-raio (habilidade): Cure toda a vida deste Mon e não faça nada na próxima rodada. Limitado a uma vez por partida.
 	- Vendaval de dragão (habilidade): Troque o Mon do seu adversário por um da sua escolha. Limitado a uma vez por partida.
 	- Dragoportal (habilidade): Troque de Mon curando este e o próximo em 35% de vida. Limite de 2 usos.
-	- Garra de dragão (ATAQUE): Causa 50% da vida atual do adversário como dano.
-	- Rasante estrondoso (ATAQUE): Causa 3.0x de ATAQUE ao adversário, jogue uma moeda, se cair coroa, causa metade desse dano como dano ao próprio Mon.
-	- Cauda aniquiladora (ATAQUE): Causa 2.0x de ATAQUE a todos os Mons adversários. Descansa na próxima rodada.
+	- Garra de dragão (ATAQUE): Causa 50% da vida atual do adversário como dano. Limite de 4 usos.
+	- Rasante estrondoso (ATAQUE): Causa 3.0x de ATAQUE ao adversário, jogue uma moeda, se cair coroa, causa metade desse dano como dano ao próprio Mon. Limite de 10 usos.
+	- Cauda aniquiladora (ATAQUE): Causa 2.0x de ATAQUE a todos os Mons adversários. Descansa na próxima rodada. Limite de 10 usos.
 	
 - Psíquico
 	- Controle mental (habilidade): Escolha uma habilidade do Mon adversário para bloquear até o final da partida, apenas 2 usos por partida. 

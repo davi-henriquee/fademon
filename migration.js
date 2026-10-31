@@ -48,6 +48,7 @@ function migrateCatalog(s){
   b.abilityRevision=3;delete b.events;
  }
  result.catalogRevision=3;
+ result.dragonMovesRevision=1;
  Object.assign(s,result);
  return true;
 }

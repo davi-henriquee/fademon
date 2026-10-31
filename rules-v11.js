@@ -14,7 +14,7 @@ E.learnMove=(m,id,index)=>{
  const special=m.learnChoices.indexOf('any');m.learnChoices.splice(special<0?0:special,1);m.pending--;return true;
 };
 E.migrateRules=s=>{
- if(s.rulesV11===1)return false;
+ let changed=false;
  const normalize=m=>{
   if(!m||!E.byId[m.species])return;
   if(m.pp)for(const [id,oldMax] of [['hydrate',3],['lightheal',5]])if(m.pp[id]!==undefined)m.pp[id]=Math.max(0,2-Math.max(0,oldMax-m.pp[id]));
@@ -27,10 +27,18 @@ E.migrateRules=s=>{
    if(m.originalMoves){m.originalMoves=[...arsenal];m.originalPP={...m.pp};}
   }else if(m.pending!==undefined)E.learningQueue(m);
  };
- for(const m of s.owned||[])normalize(m);
- for(const m of [...(s.battle?.player||[]),...(s.battle?.enemy||[]),...(s.tournament?.members||[]),...(s.tournament?.opponents||[]).flat()])normalize(m);
- // A team-limited effect already used remains exhausted, including newly filled slots.
- for(const side of ['player','enemy'])for(const m of s.battle?.[side]||[])for(const id of ['seed','cloud'])if(s.battle.sideEffects?.[side]?.used?.[id]&&id in m.pp)m.pp[id]=0;
- s.rulesV11=1;return true;
+ if(s.rulesV11!==1){
+  for(const m of s.owned||[])normalize(m);
+  for(const m of [...(s.battle?.player||[]),...(s.battle?.enemy||[]),...(s.tournament?.members||[]),...(s.tournament?.opponents||[]).flat()])normalize(m);
+  // A team-limited effect already used remains exhausted, including newly filled slots.
+  for(const side of ['player','enemy'])for(const m of s.battle?.[side]||[])for(const id of ['seed','cloud'])if(s.battle.sideEffects?.[side]?.used?.[id]&&id in m.pp)m.pp[id]=0;
+  s.rulesV11=1;changed=true;
+ }
+ if(s.dragonMovesRevision!==1){
+  const limits={dragonclaw:4,dive:10,tail:10},adjust=pp=>{if(!pp)return;for(const [id,max] of Object.entries(limits))if(pp[id]!==undefined)pp[id]=Math.max(0,max-Math.max(0,20-pp[id]));};
+  for(const m of [...(s.battle?.player||[]),...(s.battle?.enemy||[]),...(s.tournament?.members||[]),...(s.tournament?.opponents||[]).flat()]){adjust(m.pp);adjust(m.originalPP);}
+  s.dragonMovesRevision=1;changed=true;
+ }
+ return changed;
 };
 })(window.FMX);
