@@ -68,7 +68,7 @@ add('Dragão','gale','Vendaval de dragão','skill','Escolhe qual Mon adversário
 add('Dragão','portal','Dragoportal','skill','Troca de Mon e cura este e o próximo em 35% da vida máxima. 2 usos.','portal',{pp:2});
 add('Dragão','dragonclaw','Garra de dragão','attack','Causa 50% da vida atual do adversário como dano. 4 usos.','damage',{fraction:.5,pp:4});
 add('Dragão','dive','Rasante estrondoso','attack','3× ataque; na coroa, sofre metade desse dano. 10 usos.','damage',{power:3,recoil:true,pp:10});
-add('Dragão','tail','Cauda aniquiladora','attack','2× ataque em todos os Mons adversários; descansa na próxima rodada. 10 usos.','damage',{power:2,all:true,rest:true,pp:10});
+add('Dragão','tail','Cauda aniquiladora','attack','2× ataque em todos os Mons adversários; descansa nas próximas 2 rodadas. 10 usos.','damage',{power:2,all:true,rest:2,pp:10});
 add('Psíquico','mindcontrol','Controle mental','skill','Bloqueia uma habilidade adversária até o fim da batalha. 2 usos.','block',{targetKind:'skill',pp:2});
 add('Psíquico','psychicshadow','Sombra psíquica','skill','Copia um movimento adversário e seus usos restantes até o fim da batalha. Não copia outra Sombra nem recupera usos já gastos.','copy');
 add('Psíquico','confusion','Confusão cerebral','skill','Na próxima ação: coroa causa 10% do próprio HP máximo ao alvo em vez de agir; cara permite agir. Depois, imunidade à confusão por 3 rodadas.','confuse',{pp:5});
