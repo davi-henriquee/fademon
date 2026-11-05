@@ -273,10 +273,12 @@ function selectStoredSlot(slot){
 document.addEventListener('dblclick',ev=>{const el=ev.target.closest('[data-stored-uid]');if(!el||S.battle||animating)return;clearTimeout(slotTimer);selectedSlot=null;detail(el.dataset.storedUid);});
 const monXPQueue=new Map();let xpPlaying=false;
 E.onMonXP=(m,before,amount)=>{if(!S.owned.some(x=>x.uid===m.uid))return;const old=monXPQueue.get(m.uid);monXPQueue.set(m.uid,{uid:m.uid,species:m.species,before:old?.before||before,after:{level:m.level,xp:m.xp},amount:(old?.amount||0)+amount});};
+function offerPendingLearning(preferred=[]){if(loadError||S.battle||animating||xpPlaying)return false;const order=[...new Set([...preferred,...S.owned.map(m=>m.uid)])],learner=order.map(own).find(m=>m?.pending>0&&!E.lockReason(S,m.uid));if(!learner)return false;learn(learner.uid);return true;}
 function levelChime(){if(!S.settings?.sound)return;try{soundCtx??=new (window.AudioContext||window.webkitAudioContext)();[523,659,784].forEach((hz,i)=>{const o=soundCtx.createOscillator(),g=soundCtx.createGain(),t=soundCtx.currentTime+i*.08;o.type='triangle';o.frequency.value=hz;g.gain.setValueAtTime(.035,t);g.gain.exponentialRampToValueAtTime(.001,t+.18);o.connect(g);g.connect(soundCtx.destination);o.start(t);o.stop(t+.2);});}catch{}}
-async function animateMonXP(){
- if(animating||xpPlaying||!monXPQueue.size)return;xpPlaying=true;
+async function animateMonXP(recipients=[]){
+ if(animating||xpPlaying||!monXPQueue.size)return recipients;xpPlaying=true;
  const awards=[...monXPQueue.values()];monXPQueue.clear();const fx=document.createElement('dialog');fx.className='mon-xp-overlay';
+ recipients=[...new Set([...recipients,...awards.map(x=>x.uid)])];
  const percent=m=>m.level===100?100:Math.min(100,m.xp/(m.level+4)*100);
  fx.innerHTML=`<h2>Seus Mons evoluem com você</h2><div class="mon-xp-cards">${awards.map(x=>`<article class="mon-xp-card" data-xp-uid="${x.uid}">${sprite(x.species)}<b>${esc(mon(x.species).name)}</b><strong class="xp-gain">+${x.amount} XP</strong><span class="xp-level">Nv. ${x.before.level}</span><div class="bar xp"><i style="width:${percent(x.before)}%"></i></div></article>`).join('')}</div>`;
  fx.addEventListener('cancel',ev=>ev.preventDefault());document.body.append(fx);fx.showModal();paint();
@@ -288,7 +290,7 @@ async function animateMonXP(){
   for(const x of awards)if(x.after.level>x.before.level){const bar=fx.querySelector(`[data-xp-uid="${x.uid}"] .bar i`);bar.style.transition='';bar.style.width=percent(x.after)+'%';}
   await pause(reduce?100:1400);
  }finally{fx.close();fx.remove();xpPlaying=false;}
- if(monXPQueue.size)await animateMonXP();
+ if(monXPQueue.size)return animateMonXP(recipients);offerPendingLearning(recipients);return recipients;
 }
 function changed(){E.storeUnavailable(S);save();render();}
 document.addEventListener('click',async ev=>{const el=ev.target.closest('[data-action]');if(!el||el.disabled||animating)return;beep();const a=el.dataset.action,id=el.dataset.id,uid=el.dataset.uid;
@@ -307,7 +309,7 @@ document.addEventListener('click',async ev=>{const el=ev.target.closest('[data-a
  case 'memorial-info':modal(`<section class="memorial-explanation"><span class="eyebrow">COMO FUNCIONA</span><h2>Uma história pode recomeçar.</h2><p>Alcance 100 dias consecutivos de vitória no seu vício e restaure um Mon perdido.</p><p>Uma nova queda reinicia o contador. É possível ressuscitar somente um Mon por ano e cada ressurreição inicia um novo ciclo de 100 dias.</p></section>`);break;
  case 'restore-memorial':{const entry=E.migrateRecovery(S).memorial.find(x=>x.mon.uid===uid);if(!entry)return;modal(`<h2>Ressuscitar ${esc(mon(entry.mon.species).name)}?</h2><div class="detail-hero">${sprite(entry.mon.species)}<div><h3>${esc(mon(entry.mon.species).name)}</h3><p>${E.serial(entry.mon)} · Nível ${entry.mon.level}</p></div></div><p>Esta é a única ressurreição disponível neste ano. Depois dela, um novo ciclo de 100 dias será iniciado.</p><div class="detail-actions">${button('Cancelar','memorial')}${button('Confirmar ressurreição','confirm-restore-memorial',`data-uid="${uid}"`,'primary')}</div>`);break;}
  case 'confirm-restore-memorial':{const restored=E.restoreMemorialMon(S,uid);if(!restored){toast('A ressurreição não está disponível ou não há espaço na coleção.');return;}close();changed();await playRecoveryNotice();break;}
- case 'welcome-start':close();break;
+ case 'welcome-start':close();offerPendingLearning();break;
  case 'sound':S.settings??={};S.settings.sound=!S.settings.sound;save();settings();break;
  case 'configure-backup':await configureBackupDirectory();break;
  case 'export-save':await manualBackup();break;
@@ -324,12 +326,12 @@ document.addEventListener('click',async ev=>{const el=ev.target.closest('[data-a
  case 'box':box=Number(el.dataset.box);render();break;
  case 'slot':{clearTimeout(slotTimer);const slot=Number(el.dataset.slot);if(ev.detail<2)slotTimer=setTimeout(()=>selectStoredSlot(slot),300);break;}
  case 'cancel-slot':selectedSlot=null;render();break;
- case 'apply-xp':{const m=own(uid),n=Number($('#apply-amount').value);if(!m||!S.team.includes(uid)||!Number.isSafeInteger(n)||n<1||n>S.xp){toast('Quantidade de XP inválida.');return;}const pending=m.pending;S.xp-=E.grantXP(m,n);changed();if(m.pending>pending)learn(uid);else detail(uid);break;}
+ case 'apply-xp':{const m=own(uid),n=Number($('#apply-amount').value);if(!m||!S.team.includes(uid)||!Number.isSafeInteger(n)||n<1||n>S.xp){toast('Quantidade de XP inválida.');return;}const pending=m.pending;S.xp-=E.grantXP(m,n);changed();if(m.pending>pending)close();else detail(uid);break;}
  case 'evolve':{const m=own(uid);if(!m||!E.canEvolve(m)||(!S.team.includes(uid)&&!S.tournament?.members.some(x=>x.uid===uid)))return;const old=m.species;m.species=mon(old).next;E.syncTournamentMember(S,uid);if(!S.discovered.includes(m.species))S.discovered.push(m.species);save();modal(`<div class="evolution"><span class="eyebrow">UMA NOVA ETAPA</span><h2>${esc(mon(old).name)} está evoluindo!</h2><div class="evolution-sprites">${sprite(old,'evo-old')}${sprite(m.species,'evo-new')}</div><h3 class="evo-name">${esc(mon(m.species).name)}!</h3><p>Seu parceiro ficou ainda mais forte.</p>${button('Continuar','evolution-end')}</div>`);render();break;}
  case 'evolution-end':close();render();break;
  case 'learn':learn(uid);break;
- case 'learn-pick':{const m=own(uid),move=el.dataset.move;if(!m?.pending||m.moves.includes(move)||!E.learnOptions(m).some(x=>x.id===move))return;if(m.moves.length<E.moveSlots(m)){E.learnMove(m,move);save();detail(uid);render();}else modal(`<h2>Substituir qual movimento?</h2><p>Novo movimento: ${esc(E.byMove[move].name)}</p><div class="settings-list">${m.moves.map((v,i)=>button(esc(E.byMove[v].name),'replace-move',`data-uid="${uid}" data-move="${move}" data-index="${i}"`)).join('')}</div>`);break;}
- case 'replace-move':{const m=own(uid);if(!m?.pending||!E.learnMove(m,el.dataset.move,Number(el.dataset.index)))return;save();detail(uid);render();break;}
+ case 'learn-pick':{const m=own(uid),move=el.dataset.move;if(!m?.pending||m.moves.includes(move)||!E.learnOptions(m).some(x=>x.id===move))return;if(m.moves.length<E.moveSlots(m)){E.learnMove(m,move);save();if(!offerPendingLearning([uid]))detail(uid);render();}else modal(`<h2>Substituir qual movimento?</h2><p>Novo movimento: ${esc(E.byMove[move].name)}</p><div class="settings-list">${m.moves.map((v,i)=>button(esc(E.byMove[v].name),'replace-move',`data-uid="${uid}" data-move="${move}" data-index="${i}"`)).join('')}</div>`);break;}
+ case 'replace-move':{const m=own(uid);if(!m?.pending||!E.learnMove(m,el.dataset.move,Number(el.dataset.index)))return;save();if(!offerPendingLearning([uid]))detail(uid);render();break;}
  case 'month':month=new Date(month.getFullYear(),month.getMonth()+Number(el.dataset.delta),1);render();break;
  case 'day':selectedDay=el.dataset.date;render();break;
  case 'task':{const key=el.dataset.task,d=dateState(selectedDay),value=key==='star'?!d.star:!d.tasks[key];if(!E.editableDate(selectedDay))return;if(!value){const baseCost=key==='star'?(d.starPaid?2:0):1,bonusCost=d.bonusClaimed?(d.bonusAmount??9):0,cost=baseCost+bonusCost;modal(`<h2>Desmarcar ${key==='star'?'vitória':'tarefa'}?</h2><p>Serão descontados <b>${cost} XP e ${money(cost)}</b> da conta.</p>${bonusCost?`<p>Isso inclui ${bonusCost} XP e ${money(bonusCost)} do bônus de dia perfeito.</p>`:''}<p>Saldo após confirmar: ${fmt(S.xp-cost)} XP · ${money(S.coins-cost)}. Saldos negativos serão compensados pelos próximos ganhos.</p><div class="detail-actions">${button('Não, manter marcada','close')}${button('Sim, descontar recompensa','confirm-uncheck',`data-task="${key}"`,'danger')}</div>`);}else await applyDaily(key,value);break;}
@@ -360,5 +362,5 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!animatin
 const A=window.createAdventureUI({state:()=>S,esc,money,fmt,sprite,button,modal,close,changed,detail,toast,render,busy:value=>{animating=value;},battleStarted:()=>{battlePanel='main';view='battle';changed();}});
 setInterval(async()=>{if(animating)return;if(E.refreshActivities(S)){close();changed();await playRecoveryNotice();}document.querySelectorAll('[data-until]').forEach(el=>el.textContent=A.remaining(Number(el.dataset.until)));document.querySelectorAll('[data-ready-at]').forEach(el=>el.disabled=Date.now()<Number(el.dataset.readyAt));let expired=false;document.querySelectorAll('[data-stored-uid]').forEach(el=>{const status=E.availability(S,el.dataset.storedUid);if(status)el.title=status.label;else if(el.classList.contains('unavailable'))expired=true;});if(E.today()!==lastWildCalendarDate){lastWildCalendarDate=E.today();if(view==='battle'&&tab==='wild')expired=true;}if(expired)render();},1000);
 setInterval(()=>void attemptWeeklyBackup(),60*60*1000);
-if(!loadError)save();render();void loadBackupDirectory();if(!loadError&&!S.welcomeSeen)welcome();else if(!loadError)playRecoveryNotice();if(loadError)toast('O save não pôde ser lido. Importe um backup pelas configurações.');
+if(!loadError)save();render();void loadBackupDirectory();if(!loadError&&!S.welcomeSeen)welcome();else if(!loadError)void playRecoveryNotice().then(()=>offerPendingLearning());if(loadError)toast('O save não pôde ser lido. Importe um backup pelas configurações.');
 })();
