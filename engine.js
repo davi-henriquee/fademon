@@ -67,8 +67,8 @@ add('Dragão','hyper','Hiper-raio','skill','Cura toda a vida; não age na próxi
 add('Dragão','gale','Vendaval de dragão','skill','Escolhe qual Mon adversário entra. 1 uso por partida.','force',{choose:true,pp:1});
 add('Dragão','portal','Dragoportal','skill','Troca de Mon e cura este e o próximo em 35% da vida máxima. 2 usos.','portal',{pp:2});
 add('Dragão','dragonclaw','Garra de dragão','attack','Causa 50% da vida atual do adversário como dano. 4 usos.','damage',{fraction:.5,pp:4});
-add('Dragão','dive','Rasante estrondoso','attack','3× ataque; na coroa, sofre metade desse dano. 10 usos.','damage',{power:3,recoil:true,pp:10});
-add('Dragão','tail','Cauda aniquiladora','attack','2× ataque em todos os Mons adversários; descansa nas próximas 2 rodadas. 10 usos.','damage',{power:2,all:true,rest:2,pp:10});
+add('Dragão','dive','Rasante estrondoso','attack','4× ataque; na coroa, sofre metade desse dano, além de causar o dano completo. 4 usos.','damage',{power:4,recoil:true,pp:4});
+add('Dragão','tail','Cauda aniquiladora','attack','2× ataque em todos os Mons adversários; descansa nas próximas 2 rodadas. 4 usos.','damage',{power:2,all:true,rest:2,pp:4});
 add('Psíquico','mindcontrol','Controle mental','skill','Bloqueia uma habilidade adversária até o fim da batalha. 2 usos.','block',{targetKind:'skill',pp:2});
 add('Psíquico','psychicshadow','Sombra psíquica','skill','Copia um movimento adversário e seus usos restantes até o fim da batalha. Não copia outra Sombra nem recupera usos já gastos.','copy');
 add('Psíquico','confusion','Confusão cerebral','skill','Na próxima ação: coroa causa 10% do próprio HP máximo ao alvo em vez de agir; cara permite agir. Depois, imunidade à confusão por 3 rodadas.','confuse',{pp:5});
@@ -130,7 +130,7 @@ function wildEncounter(date=today()){
  const rarity=wildRarity(date),species=pick(D.mons.filter(m=>m.rarity===rarity&&(rarity==='Lendário'||m.stage===0)));
  return createMon(species.id,rarity==='Lendário'?1:1+Math.floor(Math.random()*5),true);
 }
-function newSave(){return {version:1,welcomeSeen:false,rulesV11:1,dragonMovesRevision:1,catalogRevision:D.catalogVersion||2,coins:500,xp:0,owned:[],team:[],boxes:Array(500).fill(null),discovered:[],calendar:{},career:D.bosses.map(()=>({wins:0,cleared:false})),lastCareer:null,lastWild:null,battle:null,settings:{sound:false},created:today()};}
+function newSave(){return {version:1,welcomeSeen:false,rulesV11:1,dragonMovesRevision:2,catalogRevision:D.catalogVersion||2,coins:500,xp:0,owned:[],team:[],boxes:Array(500).fill(null),discovered:[],calendar:{},career:D.bosses.map(()=>({wins:0,cleared:false})),lastCareer:null,lastWild:null,battle:null,settings:{sound:false},created:today()};}
 function addOwned(state,mon,origin='obtained'){let slot=state.boxes.indexOf(null);if(state.owned.length>=506||state.owned.some(m=>m.uid===mon.uid)||state.team.length>=6&&slot<0)return false;normalizeOwnership(state);mon.history??=newMonHistory(origin);mon.serial=state.nextSerial++;state.owned.push(mon);if(state.team.length<6)state.team.push(mon.uid);else state.boxes[slot]=mon.uid;if(!state.discovered.includes(mon.species))state.discovered.push(mon.species);return true;}
 function task(state,date,key,value){
  if(state.battle||!editableDate(date))return false;
@@ -296,7 +296,7 @@ function use(b,side,action){let actor=active(b,side),foe=active(b,other(side)),t
   for(const t of targets){const adv=effectiveness(actor,t,move);if(adv>1)log(b,'É super eficaz!');let dmg=move.fraction?t.hp*move.fraction:actor.stats.atk*power;total+=hit(b,actor,t,dmg*mult*adv);}
   if(move.drain)heal(b,actor,total*.5);if(applyParalysis&&foe.hp>0)paralyze(b,foe);
   if(applySleep&&foe.hp>0)applyControl(b,foe,'sleep',2);
-  if(applyRecoil){const recoil=damage(b,actor,actor.stats.atk*3*.5,'Recuo');log(b,`${name(actor)} sofreu ${recoil} de recuo.`);}break;
+  if(applyRecoil){const recoil=damage(b,actor,actor.stats.atk*power*.5,'Recuo');log(b,`${name(actor)} sofreu ${recoil} de recuo.`);}break;
  }}
  if(move.rest){st.rest=Number(move.rest);if(move.lockSwitch)st.switchLocked=true;}
 }

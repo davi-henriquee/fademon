@@ -34,10 +34,15 @@ E.migrateRules=s=>{
   for(const side of ['player','enemy'])for(const m of s.battle?.[side]||[])for(const id of ['seed','cloud'])if(s.battle.sideEffects?.[side]?.used?.[id]&&id in m.pp)m.pp[id]=0;
   s.rulesV11=1;changed=true;
  }
- if(s.dragonMovesRevision!==1){
+ if((s.dragonMovesRevision||0)<1){
   const limits={dragonclaw:4,dive:10,tail:10},adjust=pp=>{if(!pp)return;for(const [id,max] of Object.entries(limits))if(pp[id]!==undefined)pp[id]=Math.max(0,max-Math.max(0,20-pp[id]));};
   for(const m of [...(s.battle?.player||[]),...(s.battle?.enemy||[]),...(s.tournament?.members||[]),...(s.tournament?.opponents||[]).flat()]){adjust(m.pp);adjust(m.originalPP);}
   s.dragonMovesRevision=1;changed=true;
+ }
+ if(s.dragonMovesRevision<2){
+  const adjust=pp=>{if(!pp)return;for(const id of ['dive','tail'])if(pp[id]!==undefined)pp[id]=Math.max(0,4-Math.max(0,10-pp[id]));};
+  for(const m of [...(s.battle?.player||[]),...(s.battle?.enemy||[]),...(s.tournament?.members||[]),...(s.tournament?.opponents||[]).flat()]){adjust(m.pp);adjust(m.originalPP);}
+  s.dragonMovesRevision=2;changed=true;
  }
  return changed;
 };
