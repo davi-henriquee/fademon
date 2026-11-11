@@ -258,7 +258,12 @@ function useTournamentItem(s,uid,id){
  if(item.kind==='restore'){if(m.hp>0||t.restoreUsed)return false;m.hp=Math.max(1,Math.ceil(m.stats.hp*.3));for(const move of m.moves)m.pp[move]=Math.min(E.byMove[move].pp,m.pp[move]+1);t.restoreUsed=true;}
  s.items[id]--;return true;
 }
-function abandonTournament(s){if(s.battle||s.tournament?.status!=='active')return false;const t=s.tournament;t.status='lost';if(t.phase===0)s.league=Math.max(0,t.league-1);t.resultText='Torneio encerrado por desistência. Inscrição mensal consumida.';return true;}
+function abandonTournament(s){
+ if(s.battle||s.tournament?.status!=='active')return false;const t=s.tournament;t.status='lost';
+ if(t.phase===0){if(s.lastTournamentMonth===t.month)s.lastTournamentMonth=null;t.resultText='Inscrição cancelada antes da primeira batalha. Chance mensal preservada; taxa não reembolsada.';}
+ else t.resultText='Torneio encerrado por desistência. Inscrição mensal consumida.';
+ return true;
+}
 function onRemove(s,m){
  normalizeExpeditions(s);for(const x of s.expeditions)x.members=x.members.filter(member=>member.uid!==m.uid);s.expeditions=s.expeditions.filter(x=>x.members.length);
  const t=s.tournament;if(t?.status==='active'){t.members=t.members.filter(x=>x.uid!==m.uid);if(!t.members.length){t.status='lost';if(t.phase===0)s.league=Math.max(0,t.league-1);t.resultText='Torneio encerrado: equipe removida.';}}
