@@ -12,7 +12,7 @@ for(const [kind,name,values,prices,offset,slug] of [['potion','Poção',[50,125,
 items.push({id:'restore',kind:'restore',value:.3,name:'Restauração',price:1000,image:'assets/items/21-Restauracao.png',desc:'Revive com 30% do HP e recupera 1 uso de cada movimento. Uma por equipe por intervalo.'});
 const leagues=[['Bronze',20,1,10,'07-Bronze'],['Prata',40,11,25,'06-Prata'],['Ouro',80,26,40,'05-Ouro'],['Platina',160,41,55,'04-Platina'],['Diamante',320,56,70,'03-Diamante'],['Mestre',640,71,85,'02-Mestre'],['Lendário',1500,86,100,'01-Lendario']].map(([name,fee,min,max,img])=>({name,fee,min,max,image:`assets/leagues/${img}.png`}));
 const phases=['1ª Fase','2ª Fase','Semifinal','Final'];
-const recoverySaves=5,recoveryDays=10,memorialDays=100,datePattern=/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
+const recoverySaves=5,recoveryDays=10,memorialDays=30,datePattern=/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
 function monthKey(now=Date.now()){const d=new Date(now);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
 function addDays(date,amount){const d=new Date(date+'T12:00:00');d.setDate(d.getDate()+amount);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function isPerfect(day){return !!day?.star&&['devotional','study','sleep','water','diet','workout'].every(key=>day.tasks?.[key]);}
@@ -25,9 +25,9 @@ function migrateRecovery(s,date=E.today()){
 }
 function recoveryProgress(s,date=E.today()){
  const r=migrateRecovery(s,date),c=r.critical;if(!c)return null;
- let clean=0,perfect=0;
- for(let i=1;i<=recoveryDays;i++){const key=addDays(c.startedDate,i),day=s.calendar?.[key];if(day?.star)clean++;if(isPerfect(day))perfect++;}
- const elapsed=Math.max(0,Math.min(recoveryDays,Math.floor((new Date(date+'T12:00:00')-new Date(c.startedDate+'T12:00:00'))/86400000)));
+ const totalElapsed=Math.max(0,Math.floor((new Date(date+'T12:00:00')-new Date(c.startedDate+'T12:00:00'))/86400000));let clean=0,perfect=0;
+ for(let i=1;i<=totalElapsed;i++){const key=addDays(c.startedDate,i),day=s.calendar?.[key];if(day?.star)clean=Math.min(recoveryDays,clean+1);if(isPerfect(day))perfect=Math.min(5,perfect+1);}
+ const elapsed=Math.min(recoveryDays,totalElapsed);
  return {...c,clean,perfect,elapsed,daysLeft:Math.max(0,recoveryDays-elapsed)};
 }
 function detachFromActivities(s,m){onRemove(s,m);s.team=s.team.filter(id=>id!==m.uid);if(!s.boxes.includes(m.uid)){let slot=s.boxes.indexOf(null);if(slot<0&&s.boxes.length<506){slot=s.boxes.length;s.boxes.push(null);}if(slot>=0)s.boxes[slot]=m.uid;}}
@@ -55,8 +55,7 @@ function refreshRecovery(s,date=E.today()){
  let changed=rollRecoveryYear(s,date);const r=s.recovery,c=r.critical;if(!c)return changed;
  const m=find(s,c.uid);if(!m){r.critical=null;return true;}
  detachFromActivities(s,m);const p=recoveryProgress(s,date);
- if(date>=c.endsDate&&p.clean===recoveryDays&&p.perfect>=5){r.critical=null;if(s.team.length<6){s.boxes=s.boxes.map(id=>id===m.uid?null:id);if(!s.team.includes(m.uid))s.team.push(m.uid);}r.notice={type:'recovered',uid:m.uid,species:m.species,name:E.byId[m.species].name};return true;}
- if(date>addDays(c.endsDate,1)){memorialize(s,m,date,'recovery-failed');const removed=E.removeOwned(s,m.uid);r.critical=null;if(removed)r.notice={type:'lost',species:removed.species,name:E.byId[removed.species].name};return true;}
+ if(date>=c.endsDate&&p.clean>=recoveryDays&&p.perfect>=5){r.critical=null;if(s.team.length<6){s.boxes=s.boxes.map(id=>id===m.uid?null:id);if(!s.team.includes(m.uid))s.team.push(m.uid);}r.notice={type:'recovered',uid:m.uid,species:m.species,name:E.byId[m.species].name};return true;}
  return changed;
 }
 function recordFall(s,date,id){
