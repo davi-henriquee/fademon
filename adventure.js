@@ -132,6 +132,7 @@ function storeUnavailable(s,now=Date.now()){
 function availability(s,id,now=Date.now()){
  const reason=lockReason(s,id,'',now);if(!reason)return null;
  if(reason==='Estado Crítico'){const p=recoveryProgress(s);return {label:`Estado Crítico · ${p.clean}/10 dias limpos · ${p.perfect}/5 dias perfeitos`,until:null};}
+ if(reason==='Em Ruínas')return {label:'Explorando Ruínas Semanais',until:null};
  if(reason==='Inscrito no torneio')return {label:'Inscrito em torneio',until:null};
  const until=reason==='Em expedição'?expeditionForMember(s,id)?.ends:find(s,id).lockedUntil;
  const minutes=Math.ceil(Math.max(0,until-now)/60000);
@@ -140,6 +141,7 @@ function availability(s,id,now=Date.now()){
 function lockReason(s,id,context='',now=Date.now()){
  const m=find(s,id);if(!m)return 'Mon não encontrado';
  if(s.recovery?.critical?.uid===id)return 'Estado Crítico';
+ if(s.ruins?.status==='active'&&s.ruins.members.some(x=>x.uid===id))return 'Em Ruínas';
  if(m.lockedUntil>now)return 'Recuperação do Subúrbio';
  if(expeditionForMember(s,id))return 'Em expedição';
  if(s.tournament?.status==='active'&&s.tournament.members.some(x=>x.uid===id)&&!['tournament','evolve','equipment'].includes(context))return 'Inscrito no torneio';
@@ -227,6 +229,7 @@ function startTournamentPhase(s,now=Date.now()){
  b.pi=Math.max(0,b.player.findIndex(m=>m.hp>0&&E.moveUsesRemaining(m)>0));b.done=false;b.result=undefined;b.forcePlayer=false;E.resolve(b);s.battle=b;return b;
 }
 function settleAdventure(s,b,now=Date.now()){
+ if(b.mode==='ruins')return E.settleRuins(s,b);
  if(!['suburb','rematch','tournament'].includes(b.mode))return false;
  if(b.mode==='rematch'){b.rewardText='Revanche concluída. Sem XP, moedas ou consumo da carreira diária.';return true;}
  if(b.mode==='suburb'){
@@ -265,6 +268,7 @@ function abandonTournament(s){
  return true;
 }
 function onRemove(s,m){
+ if(s.ruins?.status==='active'){s.ruins.members=s.ruins.members.filter(x=>x.uid!==m.uid);if(!s.ruins.members.length)E.cashRuins(s,true);}
  normalizeExpeditions(s);for(const x of s.expeditions)x.members=x.members.filter(member=>member.uid!==m.uid);s.expeditions=s.expeditions.filter(x=>x.members.length);
  const t=s.tournament;if(t?.status==='active'){t.members=t.members.filter(x=>x.uid!==m.uid);if(!t.members.length){t.status='lost';if(t.phase===0)s.league=Math.max(0,t.league-1);t.resultText='Torneio encerrado: equipe removida.';}}
 }
