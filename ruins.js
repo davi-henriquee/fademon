@@ -1,7 +1,7 @@
 /* Weekly ruins: persistent runs and rewards. */
 (function(E){
 'use strict';
-E.D.scenes.ruins=E.D.scenes.rematch||E.D.scenes.career;
+E.D.scenes.ruins='assets/scenes/ruins.png';
 E.ruinsWeek=function(now=Date.now()){const d=new Date(now);d.setHours(12,0,0,0);d.setDate(d.getDate()-(d.getDay()+6)%7);return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');};
 E.enterRuins=function(s,ids,now=Date.now()){
  if(s.battle||s.ruins?.status==='active'||s.lastRuinsWeek===E.ruinsWeek(now)||!Array.isArray(ids)||ids.length!==3||new Set(ids).size!==3||ids.some(id=>!s.owned.some(m=>m.uid===id)||E.lockReason(s,id)))return false;
