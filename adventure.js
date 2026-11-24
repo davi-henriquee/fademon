@@ -11,6 +11,7 @@ for(const [stat,label,values,offset,slug] of [
 for(const [kind,name,values,prices,offset,slug] of [['potion','Poção',[50,125,350,1000],[50,100,200,500],13,'Pocao'],['ether','Éter',[3,6,9,20],[50,100,200,500],17,'Eter']])values.forEach((value,i)=>{const tier=['I','II','III','IV'][i];items.push({id:`${kind}-${i+1}`,kind,value,name:`${name} ${tier}`,price:prices[i],image:`assets/items/${offset+i}-${slug}-${tier}.png`,desc:kind==='potion'?`Restaura ${value} HP de um Mon vivo.`:`Restaura ${i===3?'todos os':value} usos de cada ataque e habilidade. Um Éter por Mon por intervalo.`});});
 items.push({id:'restore',kind:'restore',value:.3,name:'Restauração',price:1000,image:'assets/items/21-Restauracao.png',desc:'Revive com 30% do HP e recupera 1 uso de cada movimento. Uma por equipe por intervalo.'});
 const leagues=[['Bronze',20,1,10,'07-Bronze'],['Prata',40,11,25,'06-Prata'],['Ouro',80,26,40,'05-Ouro'],['Platina',160,41,55,'04-Platina'],['Diamante',320,56,70,'03-Diamante'],['Mestre',640,71,85,'02-Mestre'],['Lendário',1500,86,100,'01-Lendario']].map(([name,fee,min,max,img])=>({name,fee,min,max,image:`assets/leagues/${img}.png`}));
+function tournamentReward(league){const entry=Number.isInteger(league)?leagues[league]:league;if(!entry)return {coins:0,xp:0};const xp=entry.fee*6;return {coins:xp*2,xp};}
 const phases=['1ª Fase','2ª Fase','Semifinal','Final'];
 const recoverySaves=5,recoveryDays=10,memorialDays=30,datePattern=/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
 function monthKey(now=Date.now()){const d=new Date(now);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
@@ -238,7 +239,7 @@ function settleAdventure(s,b,now=Date.now()){
  t.members=b.player.map(m=>{const c=E.clone(m);E.restoreCopiedMoves(c);c.status={};c.blocked=[];c.blockTargets=[];return c;});
  if(b.result==='win'){
   t.phase++;t.etherUsed=[];t.restoreUsed=false;
-  if(t.phase===4){t.status='champion';s.leagueChampions??=[];if(!s.leagueChampions.includes(t.league))s.leagueChampions.push(t.league);s.coins+=t.fee*6;s.league=Math.min(6,t.league+1);t.resultText=`Campeão da liga ${leagues[t.league].name}! Prêmio: ¥ ${t.fee*6}.`;}
+  if(t.phase===4){const reward=tournamentReward(t.league);t.status='champion';s.leagueChampions??=[];if(!s.leagueChampions.includes(t.league))s.leagueChampions.push(t.league);s.coins+=reward.coins;E.grantTeamXP(s,b,reward.xp,true);s.league=Math.min(6,t.league+1);t.resultText=`Campeão da liga ${leagues[t.league].name}! Prêmio: ¥ ${reward.coins} e ${reward.xp} XP total dividido entre os Mons campeões.`;}
   b.rewardText=t.status==='champion'?t.resultText:'Fase vencida! Vida e usos mantidos. Prepare sua equipe antes da próxima fase.';
  }else{t.status='lost';if(t.phase===0)s.league=Math.max(0,t.league-1);t.resultText='Eliminado deste torneio. Uma nova inscrição será permitida no próximo mês.';b.rewardText=t.resultText;}
  return true;
@@ -289,6 +290,6 @@ function validateAdventure(s){
   for(const m of t.members)if(!Number.isFinite(m.hp)||m.hp<0||!m.pp||m.moves.some(id=>!Number.isInteger(m.pp[id])||m.pp[id]<0||m.pp[id]>(id==='cloud'&&s.cloudRevision!==1?10:E.byMove[id].pp))||t.status==='active'&&!find(s,m.uid))throw Error('Estado de torneio inválido');
  }
 }
-Object.assign(E,{items,leagues,phases,monthKey,migrateBossTeams,storeUnavailable,availability,migrateAdventure,refreshActivities,lockReason,readyTeam,expeditionSlotPrice,expeditionCost,buyExpeditionSlot,startExpedition,claimExpedition,enemyEquipment,enemyPool,randomEnemy,startSuburb,bossOpponents,startRematch,enterTournament,syncTournamentMember,startTournamentPhase,settleAdventure,buyItem,equipStone,useTournamentItem,abandonTournament,onRemove,validateAdventure,migrateRecovery,recoveryProgress,refreshRecovery,recordFall,hatchEpicEgg,recoverySaves,memorialDays,memorialProgress,restoreMemorialMon});
+Object.assign(E,{items,leagues,phases,tournamentReward,monthKey,migrateBossTeams,storeUnavailable,availability,migrateAdventure,refreshActivities,lockReason,readyTeam,expeditionSlotPrice,expeditionCost,buyExpeditionSlot,startExpedition,claimExpedition,enemyEquipment,enemyPool,randomEnemy,startSuburb,bossOpponents,startRematch,enterTournament,syncTournamentMember,startTournamentPhase,settleAdventure,buyItem,equipStone,useTournamentItem,abandonTournament,onRemove,validateAdventure,migrateRecovery,recoveryProgress,refreshRecovery,recordFall,hatchEpicEgg,recoverySaves,memorialDays,memorialProgress,restoreMemorialMon});
 const originalNewSave=E.newSave;E.newSave=()=>{const s=originalNewSave();migrateAdventure(s);return s;};
 })(window.FMX);
