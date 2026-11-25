@@ -14,11 +14,12 @@ E.migrateRuins=function(s){
  if(s.battle?.mode==='ruins')s.battle=null;
  s.ruins=null;
 };
-E.enterRuins=function(s,ids,now=Date.now()){
+E.enterRuins=function(s,ids,now=Date.now(),atOwnLevel=false){
  if(s.battle||s.ruins?.status==='active'||s.lastRuinsDate===E.ruinsDate(now)||!Array.isArray(ids)||ids.length!==1||ids.some(id=>!s.owned.some(m=>m.uid===id)||E.lockReason(s,id)))return false;
  const members=ids.map(id=>E.combatMon(s.owned.find(m=>m.uid===id)));
  s.lastRuinsDate=E.ruinsDate(now);
- s.ruins={version:2,status:'active',date:s.lastRuinsDate,floor:0,currentLevel:1,pot:1,members,opponents:[],etherUsed:[]};
+ const startLevel=atOwnLevel?members[0].level:1;
+ s.ruins={version:2,status:'active',date:s.lastRuinsDate,floor:startLevel-1,currentLevel:startLevel,pot:startLevel,members,opponents:[],etherUsed:[]};
  E.storeUnavailable(s);E.startRuinsFloor(s);return true;
 };
 E.cashRuins=function(s,loss=false,complete=false){
@@ -84,11 +85,11 @@ window.createAdventureUI=function(C){
   return '<div class="mode-hero" style="--scene:url(\''+E.D.scenes.ruins+'\')"><div><span class="eyebrow">AVENTURA DIÁRIA</span><h2>Ruínas</h2><p>Um Mon. Cem níveis. Até onde você consegue chegar?</p></div></div><section class="panel activity-panel"><p>Uma entrada por dia. Vida e usos dos movimentos persistem entre adversários. Ao encerrar, seu Mon recebe XP igual ao nível do adversário atual. Derrota ou empate não concede XP.</p>'+
    (s.ruinsMigrationNotice?'<p class="legend">'+esc(s.ruinsMigrationNotice)+'</p>':'')+
    (r?.status==='active'?'<h2>Nível '+r.floor+' vencido</h2><p>Encerrar agora: <b>'+r.currentLevel+' XP</b> · Próximo adversário: <b>Nível '+(r.floor+1)+'</b></p><div class="tournament-team">'+r.members.map(m=>'<article class="tournament-mon">'+sprite(m.species)+'<h3>'+esc(E.byId[m.species].name)+'</h3><p>'+Math.ceil(m.hp)+' / '+m.stats.hp+' HP</p><small>'+m.moves.map(id=>esc(E.byMove[id].name)+': '+m.pp[id]+'/'+E.byMove[id].pp).join('<br>')+'</small>'+button('Usar itens','ruins-items','data-uid="'+m.uid+'"')+'</article>').join('')+'</div><p>Poções e um Éter por intervalo entre adversários.</p><div class="detail-actions">'+button('Encerrar Ruína','ruins-exit')+button('Continuar · Nível '+(r.floor+1),'ruins-next','','primary')+'</div>':
-   (r?.resultText?'<p class="legend">'+esc(r.resultText)+'</p>':'')+(s.lastRuinsDate===E.ruinsDate()?'<p>A entrada de hoje já foi utilizada. Volte amanhã.</p>':'<p>Selecione um Mon disponível para enfrentar o primeiro adversário, no nível 1.</p><div class="activity-picker">'+s.owned.filter(m=>!E.lockReason(s,m.uid)).map(m=>'<label class="activity-mon"><input type="radio" name="ruins-members" value="'+m.uid+'">'+sprite(m.species)+'<span>'+esc(E.byId[m.species].name)+' · Nv. '+m.level+'</span></label>').join('')+'</div>'+button('Entrar na Ruína','ruins-enter','','primary')))+ '</section>';
+   (r?.resultText?'<p class="legend">'+esc(r.resultText)+'</p>':'')+(s.lastRuinsDate===E.ruinsDate()?'<p>A entrada de hoje já foi utilizada. Volte amanhã.</p>':'<p>Selecione um Mon e escolha começar no nível 1 ou no nível dele.</p><div class="activity-picker">'+s.owned.filter(m=>!E.lockReason(s,m.uid)).map(m=>'<label class="activity-mon"><input type="radio" name="ruins-members" value="'+m.uid+'">'+sprite(m.species)+'<span>'+esc(E.byId[m.species].name)+' · Nv. '+m.level+'</span></label>').join('')+'</div>'+'<div class="detail-actions">'+button('Começar no nível 1','ruins-enter','data-start="one"','primary')+button('Começar no nível do Mon','ruins-enter','data-start="own"')+'</div>'))+ '</section>';
  };
  const action=A.action;A.action=async function(a,el){
   const s=S();if(!a.startsWith('ruins-'))return action(a,el);
-  if(a==='ruins-enter'){const ids=[...document.querySelectorAll('input[name="ruins-members"]:checked')].map(x=>x.value);if(E.enterRuins(s,ids)){C.battleStarted();}else toast('Selecione um Mon disponível. Uma entrada por dia.');}
+  if(a==='ruins-enter'){const ids=[...document.querySelectorAll('input[name="ruins-members"]:checked')].map(x=>x.value);if(E.enterRuins(s,ids,Date.now(),el.dataset.start==='own')){C.battleStarted();}else toast('Selecione um Mon disponível. Uma entrada por dia.');}
   if(a==='ruins-next'){if(E.startRuinsFloor(s))C.battleStarted();else{changed();toast('Mon sem vida ou movimentos disponíveis.');}}
   if(a==='ruins-exit')modal('<h2>Encerrar a Ruína?</h2><p>Seu Mon receberá '+(s.ruins?.currentLevel||0)+' XP. A entrada de hoje continuará utilizada.</p>'+button('Encerrar e receber XP','ruins-cash','','primary')+button('Voltar','close'));
   if(a==='ruins-cash'){const ok=s.battle?E.endRuins(s):E.cashRuins(s);if(ok){close();changed();}}
