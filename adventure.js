@@ -132,7 +132,7 @@ function storeUnavailable(s,now=Date.now()){
 function availability(s,id,now=Date.now()){
  const reason=lockReason(s,id,'',now);if(!reason)return null;
  if(reason==='Estado Crítico'){const p=recoveryProgress(s);return {label:`Estado Crítico · ${p.clean}/10 dias limpos · ${p.perfect}/5 dias perfeitos`,until:null};}
- if(reason==='Em Ruínas')return {label:'Explorando Ruínas Semanais',until:null};
+ if(reason==='Em Ruínas')return {label:'Explorando Ruínas',until:null};
  if(reason==='Inscrito no torneio')return {label:'Inscrito em torneio',until:null};
  const until=reason==='Em expedição'?expeditionForMember(s,id)?.ends:find(s,id).lockedUntil;
  const minutes=Math.ceil(Math.max(0,until-now)/60000);
